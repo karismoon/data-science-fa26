@@ -27,6 +27,9 @@ In [RStudio](https://bookdown.org/yihui/rmarkdown/r-code.html) use the shortcut
 `Ctrl + Alt + I` (`Cmd + Option + I` on Mac). Type the command
 `library(tidyverse`).
 
+```{r}
+library(tidyverse)
+```
 
 Make sure to load packages at the *beginning* of your notebooks! This is a
 best-practice.
@@ -41,6 +44,8 @@ cursor.
 
 ### __q3__ What are the main differences between `install.packages()` and `library()`? How often do you need to call each one?
 
+install.packages() installs the package onto your computer, library() loads it into the file and makes it accessible.
+You only need to install once, but you need to load for each file.
 
 <!-- include-exit-ticket -->
 # Exit Ticket

@@ -41,7 +41,8 @@ At this point, we should just pick a link, and go back if it's not relevant.
 Get help on the built-in `rnorm` function.
 
 ```{r rnorm-help, eval=FALSE}
-## Your code here
+## Your code 
+?rnorm
 ```
 
 ## (Not) Executing functions
@@ -61,6 +62,7 @@ Show the source code for `lm`.
 
 ```{r rnorm-source}
 ## Your code here
+lm
 ```
 
 ## Executing functions (for real)
@@ -105,6 +107,11 @@ The best way to figure out what arguments a function requires is to *read its do
 
 Using either the documentation or the source, determine the arguments for `rnorm`.
 
+```{r}
+?rnorm
+```
+
+
 
 ### __q4__ Call the function
 
@@ -112,6 +119,7 @@ Using what you learned in q3, generate a random sample of size `n = 10` using `r
 
 ```{r}
 ## Write your code here
+rnorm(10)
 ```
 
 ## Adapting examples
@@ -131,6 +139,12 @@ Look up the documentation for the function `tribble`, and figure out how to crea
 
 ```{r}
 ## Write your code here
+?tribble
+tribble(
+  ~u, ~w,
+  1, 2,
+  3, 4
+)
 ```
 
 
