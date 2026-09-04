@@ -26,12 +26,18 @@ Inspect the `diamonds` dataset. What do the `cut`, `color`, and `clarity` variab
 *Hint*: We learned how to inspect a dataset in `e-data-00-basics`!
 
 ```{r q1-task, eval=FALSE}
+?diamonds
 ```
+
+cut: quality of the cut
+color: diamond colour, from D (best) to J (worst)
+clarity: how clear the diamond is (I1 (worst), SI2, SI1, VS2, VS1, VVS2, VVS1, IF (best))
 
 ### __q2__ Standard checks
 
 Use your "standard checks" to determine what variables the dataset has.
 
+price, carat, cut, color, clarity, x, y, z, depth, table
 
 Now that we have the list of variables in the dataset, we know what we can visualize!
 
@@ -73,18 +79,25 @@ Using `ggplot`, visualize `price` vs `carat` with points. What trend do you obse
 
 ```{r q3-task}
 ## TODO: Complete this code
-ggplot(diamonds)
+ggplot(            # 1. Starting a ggplot
+  data = diamonds  # 2. Dataset to visualize
+) +                # 3. Adding elements to the plot
+  geom_point(      # 4. Geometry
+    mapping = aes( # 5. `Aes`thetic mapping
+      x = carat,   # 5.1. Mapping the `x` variable
+      y = price    # 5.2. Mapping the `y` variable
+    )
+  )
 ```
 
 **Observations**:
 
-- (Write your observations here!)
+- there are walls where the price dramatically increases at round numbers like 1, 1.5, and 2
+- in between these walls the price is about the same.
 
 ## A note on *aesthetics*
 
 The function `aes()` is short for *aesthetics*. Aesthetics in ggplot are the mapping of variables in a dataframe to visual elements in the graph. For instance, in the plot above you assigned `carat` to the `x` aesthetic, and `price` to the `y` aesthetic. But there are *many more* aesthetics you can set, some of which vary based on the `geom_` you are using to visualize. 
-
-
 
 ```{r}
 ## NOTE: This is some more advanced code we'll learn to write later
@@ -107,6 +120,11 @@ As with any R function, we can consult the documentation to learn more.
 
 Look up the documentation for `geom_point()`, and scroll down to the *Aesthetics* section. What aesthetics (other than `x` and `y`) does `geom_point()` accept?
 
+```{r}
+?geom_point
+```
+alpha, colour, fill, group, shape, size, stroke
+
 ### __q5__ Visualize a third variable
 
 Adapt your code from q3 to visualize `price`, `carat`, and `cut` simultaneously.
@@ -115,12 +133,22 @@ Adapt your code from q3 to visualize `price`, `carat`, and `cut` simultaneously.
 
 ```{r q4-task}
 ## TODO: Complete this code
-ggplot(diamonds)
+ggplot(            # 1. Starting a ggplot
+  data = diamonds  # 2. Dataset to visualize
+) +                # 3. Adding elements to the plot
+  geom_point(      # 4. Geometry
+    mapping = aes( # 5. `Aes`thetic mapping
+      x = carat,   # 5.1. Mapping the `x` variable
+      y = price,    # 5.2. Mapping the `y` variable
+      colour = cut
+    )
+  )
+
 ```
 
 **Observations**:
 
-- (Write your observations here!)
+It's hard to tell but it looks like all the fair cuts are lower in price within each carat category. However there are some outliers for very high carat so maybe it doesn't matter as much as the carats gets higher.
 
 <!-- include-exit-ticket -->
 # Exit Ticket
