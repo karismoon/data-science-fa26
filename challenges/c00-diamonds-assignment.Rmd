@@ -1,7 +1,7 @@
 ---
 title: "Getting Started: Diamonds"
-author: "(Your name here)"
-date: 2020-
+author: "Karis"
+date: 2027-9-4
 output:
   github_document:
     toc: true
@@ -54,24 +54,41 @@ In this first stage, you will explore the `diamonds` dataset and document your o
 
 ```{r q1-task}
 ## TASK: Plot `price` vs `carat` below
-## Your code here!
+ggplot(            # 1. Starting a ggplot
+  data = diamonds  # 2. Dataset to visualize
+) +                # 3. Adding elements to the plot
+  geom_point(      # 4. Geometry
+    mapping = aes( # 5. `Aes`thetic mapping
+      x = carat,   # 5.1. Mapping the `x` variable
+      y = price    # 5.2. Mapping the `y` variable
+    )
+  )
 ```
 
 **Observations**:
 
-- (Write your observations here!)
+- there are walls where the price dramatically increases at round numbers like 1, 1.5, and 2
+- in between these walls the price range distribution remains the same.
 
 ### __q2__ Create a visualization showing variables `carat`, `price`, and `cut` simultaneously. Experiment with which variable you assign to which aesthetic (`x`, `y`, etc.) to find an effective visual.
 
 ```{r q2-task}
 ## TASK: Plot `price`, `carat`, and `cut` below
-## Your code here!
+ggplot(            # 1. Starting a ggplot
+  data = diamonds  # 2. Dataset to visualize
+) +                # 3. Adding elements to the plot
+  geom_point(      # 4. Geometry
+    mapping = aes( # 5. `Aes`thetic mapping
+      x = carat,   # 5.1. Mapping the `x` variable
+      y = price,    # 5.2. Mapping the `y` variable
+      colour = cut
+    )
+  )
 ```
 
 **Observations**:
 
-- (Write your observations here!)
-
+It's kind of hard to tell but it looks like all the fair cuts are lower in price within each carat category. However there are some outliers for very high carat so maybe it doesn't matter as much as the carats gets higher.
 
 # Communication
 <!-- -------------------------------------------------- -->
