@@ -61,7 +61,7 @@ flights %>%
 Select all the variables whose name ends with `_time`.
 
 ```{r q1-task}
-## df_q1 <- TODO: Your code goes here!
+df_q1 <- flights %>% select(ends_with('_time'))
 df_q1
 ```
 
@@ -92,7 +92,7 @@ Re-arrange the columns to place `dest, origin, carrier` at the front, but retain
 *Hint*: The function `everything()` will be useful!
 
 ```{r q2-task}
-df_q2 <- flights %>% select(everything()) # TODO: Modify to move columns to the front
+df_q2 <- flights %>% select(dest, origin, carrier, everything()) # TODO: Modify to move columns to the front
 df_q2
 ```
 
@@ -121,8 +121,8 @@ flights %>%
 
 ```{r}
 ## NOTE: Uncomment and run to see the error
-# flights %>% 
-#   filter(month = 2)
+flights %>%
+  filter(month = 2)
 ```
 
 ### Filter conditions
@@ -159,6 +159,9 @@ Find all the flights where the plane arrived within 10 minutes of its planned ar
 df_q3 <- 
   flights %>% 
   filter(
+    arr_time < sched_arr_time + 10 &
+    arr_time > sched_arr_time - 10 &
+    arr_time != sched_arr_time
   )
 
 df_q3
@@ -198,7 +201,7 @@ Note that in Tidyverse functions like `select()` and `filter()`, we can refer to
 Fix the following code. What is the mistake here? What is the code trying to accomplish?
 
 ```{r q4-task}
-## flights %>% filter(dest = LAX) # Uncomment and run to see error
+flights %>% filter(dest == 'LAX') # Uncomment and run to see error
 ```
 
 The next error is *far more insidious*....
@@ -209,7 +212,7 @@ This code doesn't quite what the user intended---they were trying to filter for 
 
 ```{r q5-task}
 BOS <- "LGA"
-flights %>% filter(dest == BOS)
+flights %>% filter(dest == 'BOS')
 ```
 
 It will take practice to get used to when and when not to use quotations. Don't worry---we'll get lots of practice!
@@ -223,6 +226,12 @@ Perform **two** filters; first filter for flights where the *destination* was a 
 ```{r q6-task}
 ## df_q6a <- dest is JFK, LGA, or EWR
 ## df_q6b <- origin is JFK, LGA, or EWR
+
+df_q6a <- flights %>% filter(dest == "JFK" | dest == 'LGA' | dest == 'EWR' )
+df_q6b <- flights %>% filter(origin == "JFK" | dest == 'LGA' | dest == 'EWR' )
+
+df_q6a
+df_q6b
 ```
 
 Use the following code to check your answer.
@@ -246,7 +255,7 @@ print("Nice!")
 
 **Observations**
 - Was this dataset assembled to study flights *out of* NYC, or *into* NYC? How do you know?
-  - (Your response here)
+flights out of NYC, all the flights are coming out of NYC while only flight is going into NYC
 
 *Aside*: Data are not just numbers. Data are *numbers with context*. Every dataset is put together for some reason. This reason will inform what observations (rows) and variables (columns) are *in the data*, and which are *not in the data*. Conversely, thinking carefully about what data a person or organization bothered to collect---and what they ignored---can tell you something about the *perspective* of those who collected the data. Thinking about these issues is partly what separates __data science__ from programming or machine learning.
 
@@ -288,7 +297,9 @@ flights %>%
 Sort the flights in *descending* order by their `air_time`. Bring `air_time, dest` to the front. What can you tell about the longest flights?
 
 ```{r q7-task}
-## df_q7 <- TODO: Your code here!
+df_q7 <- flights %>% 
+  arrange(desc(air_time)) %>% 
+  select(air_time, dest, everything())
 df_q7
 ```
 
