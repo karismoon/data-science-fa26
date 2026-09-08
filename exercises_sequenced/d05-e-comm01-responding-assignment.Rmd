@@ -93,9 +93,9 @@ Here the bolded response is *actively* engaging with your colleague's question, 
 
 **Observations**:
 
-- Is the bolded response **active** or **passive**? Why?
-- Is the bolded response **constructive** or **destructive**? Why?
-- How does this statement make you *feel*, relative to the bolded statement before the q1 prompt?
+- Is the bolded response **active** or **passive**? Why? active, they're like oh ur so right dude
+- Is the bolded response **constructive** or **destructive**? Why? constructive, they make the person feel good about themselves
+- How does this statement make you *feel*, relative to the bolded statement before the q1 prompt? good abt myself
 
 ### __q2__ Identify the nature of the bolded line below, rating it as either **active vs passive** and **constructive vs destructive**.
 
@@ -107,9 +107,10 @@ Here the bolded response is *actively* engaging with your colleague's question, 
 
 **Observations**:
 
-- Is the bolded response **active** or **passive**? Why?
-- Is the bolded response **constructive** or **destructive**? Why?
+- Is the bolded response **active** or **passive**? Why? passive, the question is unanswered LOL
+- Is the bolded response **constructive** or **destructive**? Why? constructive, they're like oh ur critique is so right
 - How does this statement make you *feel*, relative to the bolded statement before the q1 prompt?
+not like a bother but like huh confused
 
 **Intermediate Conclusion**: We can quite naturally think of discussion responses in the APCD framework. Therefore, we should try to give active and constructive responses in data discussions!
 
@@ -174,8 +175,8 @@ Let's practice once more!
 
 **Observations**:
 
-- Is the bolded response **active** or **passive**? Why?
-- Is the bolded response **constructive** or **destructive**? Why?
+- Is the bolded response **active** or **passive**? Why? passive, it's not related to the content at all!
+- Is the bolded response **constructive** or **destructive**? Why? constructive i guess? they're showing interest in the presenter's opinions
 
 <!-- include-exit-ticket -->
 # Exit Ticket
