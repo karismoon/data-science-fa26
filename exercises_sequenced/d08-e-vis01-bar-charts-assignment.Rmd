@@ -65,6 +65,11 @@ Convert the following `geom_bar()` plot into the same visual using `geom_col()`.
 mpg %>%
   ggplot(aes(trans)) +
   geom_bar()
+
+mpg %>% 
+  count(trans) %>% # Count adds the column `n` of counts
+  ggplot(aes(x = trans, y = n)) +
+  geom_col()
 ```
 
 ## Fundamentals of the bar chart
@@ -109,11 +114,11 @@ The following code attempts to visualize `cty, hwy` from `mpg` using `geom_col()
 ```{r q2-task}
 mpg %>%
   ggplot(aes(x = cty, y = hwy)) +
-  geom_col()
+  geom_col(position = "dodge")
 ```
 
 **Observations**:
-- Write your observations here!
+the hwy values have jumps
 
 ## Stacked bar charts
 
@@ -159,7 +164,7 @@ mpg %>%
 ```
 
 **Observations**:
-- Write your observations here!
+the colors don't add any info lol. it looks nice though
 
 ```{r q4-v2}
 ## TODO: Run this code without changing, describe your observations on the data
@@ -169,12 +174,14 @@ mpg %>%
 ```
 
 **Observations**:
-- Write your observations here!
+it shows what types of drive trains are within each class
 
 **Compare `v1` and `v2`**:
 
 - Which visualization---`v1` or `v2`---enabled you to make more observations?
 - What was the difference between `v1` and `v2`?
+
+each aesthetic of the bar graph represented a different variable
 
 ### __q4__ Fix this plot
 
@@ -184,13 +191,13 @@ The following code has a bug; it does not do what its author intended. Identify 
 
 ```{r q4-task}
 mpg %>%
-  ggplot(aes(x = manufacturer, fill = class), position = "dodge") +
-  geom_bar() +
+  ggplot(aes(x = manufacturer, fill = class)) +
+  geom_bar(position = "dodge") +
   theme(axis.text.x = element_text(angle = 270, vjust = 0.5, hjust = 0))
 ```
 
 **Observations**
-- Your observations here!
+it shows that certain manufacturers only make one class of car, while others make many different classes
 
 ## A bit on facets
 
@@ -252,9 +259,9 @@ The following graph is hard to read. Experiment with other choices of faceting t
 
 ```{r q5-task}
 mpg %>%
-  ggplot(aes(x = cyl)) +
+  ggplot(aes(x = manufacturer)) +
   geom_bar() +
-  facet_grid(~ manufacturer)
+  facet_grid(cyl ~ .)
 ```
 
 <!-- include-exit-ticket -->
