@@ -117,39 +117,35 @@ document your observations.
 
 ``` r
 ## TASK: Plot `price` vs `carat` below
-ggplot(            # 1. Starting a ggplot
-  data = diamonds  # 2. Dataset to visualize
-) +                # 3. Adding elements to the plot
-  geom_point(      # 4. Geometry
-    mapping = aes( # 5. `Aes`thetic mapping
-      x = carat,   # 5.1. Mapping the `x` variable
-      y = price    # 5.2. Mapping the `y` variable
-    )
-  )
+diamonds %>%
+  ggplot(
+    mapping = aes(
+      x = carat,
+      y = price
+  )) +
+  geom_point()
 ```
 
 ![](c00-diamonds-assignment_files/figure-gfm/q1-task-1.png)<!-- -->
 
 **Observations**:
 
-- there are walls where the price dramatically increases at round
+- There are walls where the price dramatically increases at round
   numbers like 1, 1.5, and 2
-- in between these walls the price range distribution remains the same.
+- In between these walls the price range distribution remains the same.
 
 ### **q2** Create a visualization showing variables `carat`, `price`, and `cut` simultaneously. Experiment with which variable you assign to which aesthetic (`x`, `y`, etc.) to find an effective visual.
 
 ``` r
 ## TASK: Plot `price`, `carat`, and `cut` below
-ggplot(            # 1. Starting a ggplot
-  data = diamonds  # 2. Dataset to visualize
-) +                # 3. Adding elements to the plot
-  geom_point(      # 4. Geometry
-    mapping = aes( # 5. `Aes`thetic mapping
-      x = carat,   # 5.1. Mapping the `x` variable
-      y = price,    # 5.2. Mapping the `y` variable
+diamonds %>%
+  ggplot(
+    mapping = aes(
+      x = carat,
+      y = price,
       colour = cut
-    )
-  )
+  )) +
+  geom_point()
 ```
 
 ![](c00-diamonds-assignment_files/figure-gfm/q2-task-1.png)<!-- -->
