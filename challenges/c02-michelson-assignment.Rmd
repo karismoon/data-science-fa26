@@ -1,7 +1,7 @@
 ---
 title: "Michelson Speed-of-light Measurements"
-author: "(Your name here)"
-date: 2020-
+author: "Karis Moon"
+date: 2026-9-16
 output: 
   github_document:
     toc: true
@@ -85,17 +85,23 @@ df_michelson %>% glimpse()
 
 ```{r q1-task}
 ## TODO: Compute summaries
-df_q1 <- NA
+df_q1 <- df_michelson
 df_q1 %>%
+  group_by(Distinctness) %>% 
+  summarize(
+    n = n(),
+    MeanVelocity = mean(Velocity),
+  ) %>% 
   arrange(desc(Distinctness)) %>%
   knitr::kable()
 ```
 
 **Observations**:
 - Write your observations here!
-  - (Your response here)
+  - Most of the images are decently distinct (2 or 3).
+  - Images with higher distinctness have higher average velocity.
 - Why might your table differ from Michelson's?
-  - (Your response here)
+  - It looks like he might have rounded his values.
 
 The `Velocity` values in the dataset are the speed of light *in air*; Michelson
 introduced a couple of adjustments to estimate the speed of light in a vacuum.
@@ -108,7 +114,9 @@ observations in the dataset.
 
 ```{r q2-task}
 ## TODO: Adjust the data, assign to df_q2
-df_q2 <- NA
+df_q2 <- 
+  df_q1 %>% 
+  mutate(`VelocityVacuum` = Velocity + 92)
 
 df_q2
 ```
@@ -137,13 +145,20 @@ problems uncertainty includes some amount of human judgment.[2]
 ```{r q3-task}
 ## TODO: Compare Michelson's estimate and error against the true value
 ## Your code here!
+
+TRUE_ERROR <- LIGHTSPEED_VACUUM - LIGHTSPEED_MICHELSON
+ERROR_DIFF <- TRUE_ERROR - LIGHTSPEED_PM
+
+ERROR_DIFF
+LIGHTSPEED_PM
+TRUE_ERROR
 ```
 
 **Observations**:
 - Is Michelson's estimate of the error (his uncertainty) greater or less than the true error?
-  - (Your response here)
+  - His uncertainty is less than the true error.
 - Make a quantitative comparison between Michelson's uncertainty and his error.
-  - (Your response here)
+  - His uncertainty was 51, while his error was 151.542.
 
 The following plot shows all of Michelson's data as a [control chart](https://en.wikipedia.org/wiki/Control_chart); this sort of plot is common in manufacturing, where it is used to help determine if a manufacturing process is under [statistical control](https://en.wikipedia.org/wiki/Statistical_process_control). Each dot is one of Michelson's measurements, and the grey line connects the mean taken for each day. The same plot also shows simulated data using a probability model. We'll get into statistics later in the course; for now, let's focus on understanding what real and simulated data tend to look like.
 
@@ -208,17 +223,54 @@ df_q2 %>%
 
 **Observations**:
 Similarities
-- (your responses here)
+- The two plots follow the same shapes, with peaks/valleys happening on the same days in the same order.
+- The spreads of the measurements for each day also seem about the same, i.e., the individual measurements for one are not more or less spread out than the other.
 Differences
-- (your responses here)
+- The simulated data is more consistent and within the expected values at the beginning, but peaks above the expected values near the end of the measurement period, while the actual values follow the opposite pattern.
 
 ### __q5__ You have access to a few other variables. Construct a **at least three** visualizations of `VelocityVacuum` against these other factors. Are there other patterns in the data that might help explain the difference between Michelson's estimate and `LIGHTSPEED_VACUUM`?
 
+```{r}
+df_q2 %>%
+  ggplot(
+    mapping = aes(
+      x = VelocityVacuum,
+      y = Temp,
+      colour = Distinctness
+  )) +
+  geom_point()
+```
+
+
 **Observations**:
 
-- Make sure to record observations on your graphs!
+- It looks like the temperature didn't affect the measured velocity that much.
+- However, this graph also shows correlation between distinctness and velocity,
+  which I noticed before too.
+- It also looks like it might be harder to get a distinct image in lower temps.
+  
+```{r}
 
+df_q2 %>%
+  ggplot(
+    mapping = aes(
+      x = Date,
+      y = VelocityVacuum,
+      colour = Temp
+  )) +
+  geom_point()
+```
 
+- It looks like the spread of measurements across dates was also pretty 
+  consistent
+- There is a bit of an outlier on Jun 9, when the temperature was higher
+
+```{r}
+df_q2 %>% 
+  ggplot(aes(x = Temp, fill = Distinctness)) +
+  geom_bar()
+```
+- This shows that there are indeed more distinct images in higher temperatures
 
 ## Bibliography
 
