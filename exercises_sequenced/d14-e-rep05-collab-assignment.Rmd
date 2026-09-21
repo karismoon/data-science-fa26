@@ -30,7 +30,7 @@ In this case you'll make *trivial edits* to the **TODO** items below, but in pra
 | Title | Person |
 |---|---|
 | *Forking* Partner |Kaman |
-| *Merging* Partner | **TODO** |
+| *Merging* Partner | *Karis* |
 
 *Note*: All instructions below are coded for either the *Forking* partner, the *Merging* partner, or *Both*. Note that you will both do all of these steps, but you will take turns being *Forking* and *Merging*. Pay attention to when these flags change---that indicates where you and your partner need to take different actions.
 
