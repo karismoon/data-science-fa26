@@ -121,23 +121,16 @@ df_titanic <- as_tibble(Titanic)
 ### **q1** Perform a glimpse of `df_titanic`. What variables are in this dataset?
 
 ``` r
-df_titanic
+glimpse(df_titanic)
 ```
 
-    ## # A tibble: 32 × 5
-    ##    Class Sex    Age   Survived     n
-    ##    <chr> <chr>  <chr> <chr>    <dbl>
-    ##  1 1st   Male   Child No           0
-    ##  2 2nd   Male   Child No           0
-    ##  3 3rd   Male   Child No          35
-    ##  4 Crew  Male   Child No           0
-    ##  5 1st   Female Child No           0
-    ##  6 2nd   Female Child No           0
-    ##  7 3rd   Female Child No          17
-    ##  8 Crew  Female Child No           0
-    ##  9 1st   Male   Adult No         118
-    ## 10 2nd   Male   Adult No         154
-    ## # ℹ 22 more rows
+    ## Rows: 32
+    ## Columns: 5
+    ## $ Class    <chr> "1st", "2nd", "3rd", "Crew", "1st", "2nd", "3rd", "Crew", "1s…
+    ## $ Sex      <chr> "Male", "Male", "Male", "Male", "Female", "Female", "Female",…
+    ## $ Age      <chr> "Child", "Child", "Child", "Child", "Child", "Child", "Child"…
+    ## $ Survived <chr> "No", "No", "No", "No", "No", "No", "No", "No", "No", "No", "…
+    ## $ n        <dbl> 0, 0, 35, 0, 0, 0, 17, 0, 118, 154, 387, 670, 4, 13, 89, 3, 5…
 
 **Observations**:
 
@@ -167,11 +160,8 @@ df_titanic %>% summarize(total = sum(n))
   - The Wikipedia page says there were 7 more people than what the
     dataset says
 - If yes, what might account for those differences?
-  - They probably pulled their numbers from different sources
-  - In the early 1900s, certain people may have not been properly
-    documented, but were still captured in some sources. Maybe Wikipedia
-    looked at a more anecdotal source while the dataset is looking at
-    more “official” sources.
+  - Maybe some people who were supposed to board or bought tickets
+    weren’t on the ship when the sank.
 
 ### **q3** Create a plot showing the count of persons who *did* survive, along with aesthetics for `Class` and `Sex`. Document your observations below.
 
@@ -179,7 +169,8 @@ df_titanic %>% summarize(total = sum(n))
 
 ``` r
 df_titanic %>% 
-  ggplot(aes(x = Class, y = n, fill = Survived)) +
+  filter(Survived == "Yes") %>% 
+  ggplot(aes(x = Class, y = n)) +
   geom_col() +
   facet_grid(Sex ~ .)
 ```
@@ -188,10 +179,8 @@ df_titanic %>%
 
 **Observations**:
 
-- There were a lot more men onboard then women
-- Larger proportions of the women survived in each class
-- Larger proportions of higher class passengers survived, regardless of
-  gender
+- More women than men survived in first and second class
+- More men than women survived in the crew
 
 # Deeper Look
 
@@ -239,19 +228,21 @@ df_prop
 
 ``` r
 df_prop %>% 
-  ggplot(aes(x = Class, y = Prop, fill = Survived)) +
+  filter(Survived == "Yes") %>% 
+  ggplot(aes(x = Class, y = Prop)) +
   geom_col() +
   facet_grid(Sex ~ .)
 ```
 
-    ## Warning: Removed 4 rows containing missing values or values outside the scale range
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
     ## (`geom_col()`).
 
 ![](c01-titanic-assignment_files/figure-gfm/q4-task-1.png)<!-- -->
 
 **Observations**:
 
-- Write your observations here.
+- Women always have a higher proportion of survivors than men when
+  looking just at proportions.
 - Is there anything *fishy* going on in your plot?
   - How can prop be higher than 1?
 
