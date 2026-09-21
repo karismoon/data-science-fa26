@@ -72,7 +72,9 @@ df_stang_long <-
     names_to = c(".value", "angle"),
     names_sep = "_",
     cols = c(-thick, -alloy)
-  )
+  ) %>% 
+  filter(E > 0) %>% 
+  mutate(angle = as.integer(angle))
 
 df_stang_long
 ```
@@ -107,20 +109,20 @@ print("Very good!")
 ### __q2__ Perform a basic EDA on the aluminum data *without visualization*. Use your analysis to answer the questions under *observations* below. In addition, add your own *specific* question that you'd like to answer about the data---you'll answer it below in q3.
 
 ```{r q2-task}
-##
+df_stang_long
 ```
 
 **Observations**:
 
 - Is there "one true value" for the material properties of Aluminum?
-  - (Your response here)
+  - No, there's no one true value, each value has some variation within it.
 - How many aluminum alloys are in this dataset? How do you know?
-  - (Your response here)
+  - There's one alloy, the values for alloy are all al_24st.
 - What angles were tested?
-  - (Your response here)
+  - 0, 45, and 90 degrees
 - What thicknesses were tested?
-  - (Your response here)
-- (Write your own question here)
+  - .022, .032, .064, .081
+- Is there an association between elasticity and thickness?
 
 ## Visualize
 <!-- ------------------------- -->
@@ -128,12 +130,15 @@ print("Very good!")
 ### __q3__ Create a visualization to investigate your question from q2 above. Can you find an answer to your question using the dataset? Would you need additional information to answer your question?
 
 ```{r q3-task}
-## TASK: Investigate your question from q1 here
+df_stang_long %>% 
+  ggplot(aes(thick, E)) + 
+  geom_point()
 ```
 
 **Observations**:
 
-- (Address your question from q1 here)
+- It looks like elasticitiy is not correlated to thickness, based on the fact that the elasticity of .064 and .022 are similar. 
+- Maybe angle is more associated to changes in elasticity.
 
 ### __q4__ Consider the following statement:
 
@@ -153,9 +158,12 @@ df_stang_long %>%
 **Observations**:
 
 - Does this graph support or contradict the claim above?
-  - (Your response here)
+  - It contradicts the claim, because elasticity does seem to depend on the thickness.
+  - The thickness .081 has the lowest elasticity and the colors are generally all
+    at the same level.
 - Is this evidence *conclusive* one way or another?
-  - (Your response here)
+  - I don't think so, because although .081 stands out, the other thicknesses are
+    seemingly all at the same area on the Y-axis.
 
 # References
 <!-- -------------------------------------------------- -->
