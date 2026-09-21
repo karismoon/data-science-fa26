@@ -53,7 +53,9 @@ mpg %>%
 
 **Observations**
 - Which class tends to be most "middle" for `displ` values?
+I guess the minivan is?
 - Which plot is more effective for answering the previous question?
+The boxplot is the most helpful.
 
 ## Boxplot definition
 
@@ -99,6 +101,7 @@ Reorder `class` according to `hwy`. Pay attention to how this modifies the plot.
 ```{r q2-task}
 ## TASK: Edit this code to reorder `class` according to `hwy`
 mpg %>%
+  mutate(class = fct_reorder(class, hwy)) %>%
   ggplot(aes(x = class, y = hwy)) +
   geom_boxplot()
 ```
@@ -120,13 +123,15 @@ Use a `cut_*` verb (of your choice) to create a categorical variable out of `car
 
 ```{r q1-task}
 diamonds %>%
-  ## TODO: Use mutate to add the column `carat_cut`
+  mutate(carat_cut = cut_interval(carat, 5)) %>% 
   ggplot(aes(x = carat_cut, y = price)) +
   geom_boxplot()
 ```
 
 **Observations**
-- Write your observations here!
+- The whiskers and outliers always go up to the max price, no matter the cut category.
+- Depending on how the data is grouped, the median price typically consistently goes up with the carat cut, but not always. Same for the quantiles.
+
 - Make sure to distinguish between the trend in median (bar), quantiles (box edges), and whiskers (vertical lines)
 
 ## Coordinate flipping
@@ -149,7 +154,8 @@ The following plot has overlapping x-axis labels. Use a verb from the reading to
 ```{r q4-task}
 mpg %>%
   ggplot(aes(manufacturer, hwy)) +
-  geom_boxplot()
+  geom_boxplot() + 
+  coord_flip()
 ```
 
 This is a simple---but important---trick to remember when visualizing data with many categories.
