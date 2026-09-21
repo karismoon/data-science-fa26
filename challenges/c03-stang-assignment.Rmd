@@ -1,7 +1,7 @@
 ---
 title: "Aluminum Data"
-author: "(Your name here)"
-date: 2020-
+author: "Karis Moon"
+date: 2026-9-17
 output:
   github_document:
     toc: true
@@ -67,7 +67,12 @@ Note that these data are not tidy! The data in this form are convenient for repo
 ```{r q1-task}
 ## TASK: Tidy `df_stang`
 df_stang_long <-
-  df_stang
+  df_stang %>% 
+  pivot_longer(
+    names_to = c(".value", "angle"),
+    names_sep = "_",
+    cols = c(-thick, -alloy)
+  )
 
 df_stang_long
 ```
