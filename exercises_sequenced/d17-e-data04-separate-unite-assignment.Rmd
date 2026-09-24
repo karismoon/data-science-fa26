@@ -124,7 +124,20 @@ tribble(
 df_q1 <-
   genes %>%
 ## TODO: pivot and unite here!
-
+  mutate(
+    # angle = as.integer(angle)
+    parent1_temp = parent1,
+    parent2_temp = parent2
+  ) %>%
+  unite(
+    col = "child",
+    parent1_temp, parent2_temp,
+    sep = ""
+  ) %>%
+  pivot_wider(
+    values_from = child,
+    names_from = parent2
+  )
 df_q1
 ```
 
@@ -165,7 +178,20 @@ separate to tidy these data.
 df_q2 <-
   alloys_mod %>%
 ## TODO: pivot and separate here!
-
+  pivot_longer(
+    names_to = "angle",
+    values_to = "val",
+    cols = c(-thick, -rep)
+  ) %>%
+  separate(
+    angle,
+    into = c("var", "angle"),
+    sep = "(?<=[A-Za-z])(?=\\d)"
+  ) %>%
+  pivot_wider(
+    names_from = "var",
+    values_from = "val"
+  )
 df_q2
 ```
 
