@@ -35,7 +35,7 @@ $$F_X(A) \equiv \sum \frac{\text{Cases in set }A}{\text{Total Cases in }X}.$$
 For the example above, we have
 
 $$\begin{aligned}
-  A &= \{2, 4, 6\}, \\
+  A &= \{2, 6\}, \\
   X &= \{3, 5, 5, \mathbf{2}, \mathbf{6}, 1, 3, 3\}, \\
   F_X(A) &= \frac{2}{8} = 1/4
   \end{aligned}$$
@@ -78,13 +78,18 @@ Now it's your turn!
 df_z <- tibble(z = rnorm(100))
 
 ## TODO: Compute `count_total`, `count_A`, and `fr`
+df_z %>%
+  mutate(in_A = (z <= 0)) %>%
+  summarize(count_total = n(), count_A = sum(in_A), fr = mean(in_A))
 ```
 
 **Observations**:
 
 - What value of `fr` did you predict?
+  I predicted it would be 0.5
 - Did your prediction match your calculation?
-
+  Nope
+  
 The following graph visualizes the set $A = {z | z <= 0}$ against a standard normal density.
 
 ```{r q1-vis}
@@ -137,7 +142,7 @@ map_dfr(
       z = rnorm(n = n_samples),
       n = n_samples
     ) %>%
-      mutate(in_A = (z <= 0)) %>%
+      mutate(in_A = (z <= 1.96) & (z >= -1.96)) %>%
       summarize(count_total = n(), count_A = sum(in_A), fr = mean(in_A))
   }
 )
@@ -146,6 +151,7 @@ map_dfr(
 **Observations**:
 
 - What value does `fr` appear to be limiting towards?
+.95
 
 Now that we know what probability is; let's connect the idea to *distributions*.
 
@@ -180,7 +186,7 @@ map_dfr(
       z = rnorm(n = n_samples),
       n = n_samples
     ) %>%
-      mutate(in_A = (z <= 0)) %>%
+      mutate(in_A = (z == 2)) %>%
       summarize(count_total = n(), count_A = sum(in_A), fr = mean(in_A))
   }
 )
@@ -189,6 +195,7 @@ map_dfr(
 **Observations**:
 
 - What value is `fr` approaching?
+0
 
 We can also understand this phenomenon in terms of areas; the following graph visualizes the set $A = {z | z = 2}$ against a standard normal.
 
@@ -252,7 +259,9 @@ Note that, by definition, the CDF gives the probability over the set $A(x) = {x'
 
 ```{r q4-task}
 ## TASK: Compute the probability that Z <= 0, assign to p0
-p0 <- NA_real_
+p0 <- 
+  pnorm(q = 0)
+
 p0
 ```
 
@@ -267,6 +276,7 @@ print("Nice!")
 **Observations**:
 
 - What was your `fr` prediction in __q1__? How does `p0` compare?
+it's the same
 
 Note that when our set $A$ is an *interval*, we can use the CDF to express the associated probability. Note that
 
@@ -276,7 +286,7 @@ $$\mathbb{P}_{\rho}[a <= X <= b] = \int_a^b \rho(x) dx = \int_{-\infty}^b \rho(x
 
 ```{r p5-task}
 ## TASK: Compute the probability that -1.96 <= Z <= +1.96, assign to pI
-pI <- NA_real_
+pI <- pnorm(1.96) - pnorm(-1.96)
 pI
 ```
 
