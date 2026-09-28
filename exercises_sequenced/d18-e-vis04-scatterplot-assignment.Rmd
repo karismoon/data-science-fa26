@@ -67,8 +67,8 @@ Modify the code below to adjust the jittering to be 0 in the horizontal directio
 mpg %>% 
   ggplot(mapping = aes(x = displ, y = hwy)) +
   geom_jitter(
-    # width = 0.2,
-    # height = 0.2,
+    width = 0,
+    height = 0.2,
   )
 ```
 
@@ -118,6 +118,7 @@ mpg %>%
   ggplot(mapping = aes(
     x = displ,
     y = hwy,
+    color = class
   )) +
   geom_jitter(width = 0.1, height = 0.5)
 ```
@@ -177,6 +178,7 @@ Add non-overlapping labels to the following scattterplot using the provided `df_
 
 ```{r q3-task}
 ## TODO: Use df_annotate below to add text labels to the scatterplot
+library(ggrepel)
 df_annotate <-
   mpg %>%
   group_by(class) %>%
@@ -187,7 +189,11 @@ df_annotate <-
 
 mpg %>%
   ggplot(aes(displ, hwy)) +
-  geom_point(aes(color = class))
+  geom_point(aes(color = class)) +
+  geom_label_repel(
+    data = df_annotate,
+    aes(label = class, fill = class)
+  )
 ```
 
 ### __q4__ Interpret a scatterplot
@@ -209,7 +215,9 @@ mpg %>%
 
 **Observations**:
 - Which tends to be larger? `cty` or `hwy` mileage?
+hwy
 - What is the trend of mileage with `displ`?
+higher displ means lower mileage
 
 ## Aside: Scatterplot vs bar chart
 <!-- -------------------------------------------------- -->
