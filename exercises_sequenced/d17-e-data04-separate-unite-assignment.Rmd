@@ -186,7 +186,8 @@ df_q2 <-
   separate(
     angle,
     into = c("var", "angle"),
-    sep = "(?<=[A-Za-z])(?=\\d)"
+    # sep = "(?<=[A-Za-z])(?=\\d)"
+    sep = -2
   ) %>%
   pivot_wider(
     names_from = "var",
