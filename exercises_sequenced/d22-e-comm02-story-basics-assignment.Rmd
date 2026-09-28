@@ -149,6 +149,7 @@ AAA, ABT, or DHY?
 
 **Justify**
 Write your justification here!
+Price and carat are correlated and there is a price jump when the carat value increases, but cut doesn't really matter, therefore you should try to get the best cut for the carat range you can afford.
 
 ### __q2__ Identify the point on the narrative spectrum, and justify your answer.
 
@@ -171,9 +172,11 @@ diamonds %>%
 
 **Classify**:
 AAA, ABT, or DHY?
+AAA?
 
 **Justify**
 Write your justification here!
+As carat increases, price increases, and lower cuts usually cost more, and around 2.5 carats price levels out.
 
 ### __q3__ Identify the point on the narrative spectrum, and justify your answer.
 
