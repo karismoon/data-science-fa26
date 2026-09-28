@@ -147,7 +147,7 @@ problems uncertainty includes some amount of human judgment.[2]
 ## Your code here!
 
 TRUE_ERROR <- LIGHTSPEED_VACUUM - LIGHTSPEED_MICHELSON
-ERROR_DIFF <- TRUE_ERROR - LIGHTSPEED_PM
+ERROR_DIFF <- abs(TRUE_ERROR) - abs(LIGHTSPEED_PM)
 
 ERROR_DIFF
 LIGHTSPEED_PM
