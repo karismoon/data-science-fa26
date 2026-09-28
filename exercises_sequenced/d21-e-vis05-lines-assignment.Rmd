@@ -79,8 +79,10 @@ The following graph doesn't work as its author intended. Based on what we learne
 ```{r q1-task}
 ## TODO: Fix the following code
 gapminder %>%
+  # group_by(year) %>% 
   filter(continent == "Asia") %>%
-  ggplot(aes(year, lifeExp)) +
+  # summarize(lifeExp = mean(lifeExp)) %>% 
+  ggplot(aes(year, lifeExp, color = country)) +
   geom_line()
 ```
 
@@ -97,7 +99,9 @@ mpg %>%
 
 **Observations**:
 - What does a line plot assume about the data?
+it assumes that it's continuous
 - How does the `mpg` dataset violate this assumption?
+each point in the dataset is not related to the other points. they are individual observations.
 
 ## Smoothing data
 
@@ -153,8 +157,9 @@ economics %>%
 
 **Observations**:
 - What can you tell based on the `Raw` data?
+The unemployment rate goes up and down a lot, roughly every 5-10 years it peaks.
 - What can you tell based on the `Smoothed` data?
-
+The larger trends of unemployment rates.
 <!-- include-exit-ticket -->
 # Exit Ticket
 <!-- -------------------------------------------------- -->
