@@ -56,12 +56,18 @@ First, we'll go through a round of *guided EDA*. Try to pay attention to the hig
 dataset?
 
 ```{r q0-task}
-## TASK: Do your "first checks" here!
+glimpse(gapminder)
 ```
 
 **Observations**:
 
 - Write all variable names here
+- country
+- continent
+- year
+- lifeExp
+- pop
+- gdpPercap
 
 ### __q1__ Determine the most and least recent years in the `gapminder` dataset.
 
@@ -69,8 +75,14 @@ dataset?
 
 ```{r q1-task}
 ## TASK: Find the largest and smallest values of `year` in `gapminder`
-year_max <- NA_real_
-year_min <- NA_real_
+year_max <- 
+  gapminder %>% 
+  pull(year) %>% 
+  max()
+year_min <- 
+  gapminder %>% 
+  pull(year) %>% 
+  min()
 ```
 
 Use the following test to check your work.
@@ -96,26 +108,48 @@ You may encounter difficulties in visualizing these data; if so document your ch
 
 ```{r q2-task}
 ## TASK: Create a visual of gdpPercap vs continent
+gapminder %>% 
+  filter(year == year_min) %>% 
+  group_by(continent, year) %>% 
+  ggplot(aes(gdpPercap, continent)) +
+  geom_boxplot()
+
+gapminder %>% 
+  filter((year == year_min) & (gdpPercap < 60000)) %>% 
+  group_by(continent, year) %>% 
+  ggplot(aes(gdpPercap, continent)) +
+  geom_boxplot()
 ```
 
 **Observations**:
-
-- Write your observations here
+- Oceania has the highest gdpPercap, with very little variation within the continent.
+- Asia has one country that is a huge outlier with much higher gdpPercap than any other country.
+- Asia and Africa overlap a lot but Asia has a lot more variation.
+- Europe has the most variation in data.
 
 **Difficulties & Approaches**:
 
 - Write your challenges and your approach to solving them
+- It was hard to read the initial plot because of how stretched out the x-axis was from the outlier, so I removed it and re-did the plot.
 
 ### __q3__ You should have found *at least* three outliers in q2 (but possibly many more!). Identify those outliers (figure out which countries they are).
 
 ```{r q3-task}
 ## TASK: Identify the outliers from q2
+gapminder %>%
+  filter((year == year_min) & (gdpPercap > 105000))
+
+gapminder %>%
+  filter((year == year_min) & (gdpPercap > 12500))
+
 ```
 
 **Observations**:
 
 - Identify the outlier countries from q2
-  - (Your response here)
+  - Kuwait
+  - Switzerland
+  - United States
 
 *Hint*: For the next task, it's helpful to know a ggplot trick we'll learn in an upcoming exercise: You can use the `data` argument inside any `geom_*` to modify the data that will be plotted *by that geom only*. For instance, you can use this trick to filter a set of points to label:
 
@@ -139,11 +173,25 @@ gapminder %>%
 
 ```{r q4-task}
 ## TASK: Create a visual of gdpPercap vs continent
+gapminder %>% 
+  filter(year == year_min | year == year_max) %>% 
+  group_by(continent, year) %>% 
+  ggplot(aes(continent, gdpPercap)) +
+  geom_boxplot() +
+  facet_wrap(year ~ .) + 
+  geom_point(
+    data = . %>% filter(country %in% c("Kuwait", "Switzerland", "United States")),
+    mapping = aes(color = country),
+    size = 2
+  )
 ```
 
 **Observations**:
 
 - Write your observations here
+- Kuwait became less of an outlier in 2007, the gdpPercap of Kuwait decreased and the gdpPercap of the rest of Asia also increased.
+- Every continent saw an increase in median gdpPercap, but at different rates.
+- Switzerland was no longer an outlier in Europe in 2007.
 
 # Your Own EDA
 <!-- -------------------------------------------------- -->
@@ -154,20 +202,42 @@ Now it's your turn! We just went through guided EDA considering the GDP per capi
 
 ```{r q5-task1}
 ## TASK: Your first graph
+gapminder %>% 
+  ggplot(aes(lifeExp, pop, color = continent)) +
+  geom_point()
 ```
 
-- (Your notes and observations here)
+- I think this plot basically just shows that Asia has a really large population.
+- We can see an positive correlation between population and life expectancy in Asia.
+- What are the correlations in other continents?
+- How do life expectancies vary across continents?
 
 ```{r q5-task2}
 ## TASK: Your second graph
+gapminder %>% 
+  filter(continent == "Africa") %>% 
+  ggplot(aes(lifeExp, pop)) +
+  geom_point()
 ```
 
-- (Your notes and observations here)
+- It looks like there isn't much of a correlation between life expectancy and population in Africa, the population generally stays around the same no matter what the life expectancy is.
+- Why is there a line of dots going up when there's a life expectancy in the late 40s?
+- What happened to cause the life expectancy to be under 25 years at some point?
 
 ```{r q5-task3}
 ## TASK: Your third graph
+gapminder %>%
+  group_by(continent, year) %>% 
+  summarize(lifeExp = mean(lifeExp)) %>% 
+
+  ggplot(aes(year, lifeExp, color = continent)) +
+  geom_line()
 ```
 
-- (Your notes and observations here)
+- The mean life expectancy has gone up in all continents, but not at the same rate.
+- Africa saw a plateau in mean life expectancy from the late 1980s to early 2000s. 
+- The order of continents with longest life expectancies have stayed the same from 1950 to 2007.
+- How do life expectancies vary across countries within the same continent?
+- What caused the plateau in life expectancy in Africa noted above?
 
 
