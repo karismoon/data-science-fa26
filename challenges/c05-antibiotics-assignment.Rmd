@@ -1,7 +1,7 @@
 ---
 title: "Antibiotics"
-author: "(Your name here)"
-date: 2020-
+author: "Karis Moon"
+date: 2026-09-28
 output:
   github_document
 ---
@@ -76,6 +76,20 @@ In this visual you must show *all three* effectiveness values for *all 16 bacter
 
 ```{r q1.1}
 # WRITE YOUR CODE HERE
+df_antibiotics_long <-
+  df_antibiotics %>% 
+  pivot_longer(
+    names_to = "antibiotic",
+    values_to = "MIC",
+    cols = c(penicillin, streptomycin, neomycin)
+  ) 
+
+df_antibiotics_long %>% 
+  ggplot(aes(antibiotic, MIC, color = bacteria, shape = gram)) +
+  geom_jitter(
+    width = .4,
+    height = 0
+  )
 ```
 
 #### Visual 2 (All variables)
@@ -86,6 +100,11 @@ Note that your visual must be *qualitatively different* from *all* of your other
 
 ```{r q1.2}
 # WRITE YOUR CODE HERE
+
+df_antibiotics_long %>% 
+  ggplot(aes(antibiotic, MIC, color = gram)) +
+  geom_col() +
+  facet_wrap(~bacteria)
 ```
 
 #### Visual 3 (Some variables)
@@ -96,6 +115,10 @@ Note that your visual must be *qualitatively different* from *all* of your other
 
 ```{r q1.3}
 # WRITE YOUR CODE HERE
+df_antibiotics_long %>% 
+  filter(antibiotic == "penicillin") %>% 
+  ggplot(aes(gram, MIC)) +
+  geom_boxplot()
 ```
 
 #### Visual 4 (Some variables)
@@ -106,6 +129,10 @@ Note that your visual must be *qualitatively different* from *all* of your other
 
 ```{r q1.4}
 # WRITE YOUR CODE HERE
+
+df_antibiotics %>% 
+  ggplot(aes(streptomycin, neomycin, color = gram)) +
+  geom_point()
 ```
 
 #### Visual 5 (Some variables)
@@ -116,6 +143,10 @@ Note that your visual must be *qualitatively different* from *all* of your other
 
 ```{r q1.5}
 # WRITE YOUR CODE HERE
+
+df_antibiotics_long %>% 
+  ggplot(aes(antibiotic, MIC)) +
+  geom_boxplot()
 ```
 
 ### __q2__ Assess your visuals
@@ -132,11 +163,13 @@ There are **two questions** below; use your five visuals to help answer both Gui
 
 *Observations*
 - What is your response to the question above?
-  - (Write your response here)
+  - Penicillin is extremely ineffective against bacteria with negative gram. 
+  - Streptomycin and neomycin are both ineffective against bacteria with positive gram.
 - Which of your visuals above (1 through 5) is **most effective** at helping to answer this question?
-  - (Write your response here)
+  - 3
 - Why?
   - (Write your response here)
+  - It shows the clear difference in effectiveness that penicillin had against the two different grams.
 
 #### Guiding Question 2
 
@@ -146,11 +179,12 @@ In 1974 *Diplococcus pneumoniae* was renamed *Streptococcus pneumoniae*, and in 
 
 *Observations*
 - What is your response to the question above?
-  - (Write your response here)
+  - It can only be effectively treated with penicillin, like the other Streptococcus bacteria. 
 - Which of your visuals above (1 through 5) is **most effective** at helping to answer this question?
-  - (Write your response here)
+  - 1
 - Why?
   - (Write your response here)
+  - It shows which antibiotics are effective for each bacteria, although you have to zoom in/filter to differentiate between the points clustered at the bottom of the y-axis.
 
 
 # References
