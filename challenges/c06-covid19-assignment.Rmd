@@ -1,7 +1,7 @@
 ---
 title: "COVID-19"
-author: "(Your name here)"
-date: 2020-
+author: "Karis Moon"
+date: 2026-10-1
 output:
   github_document:
     toc: true
@@ -79,7 +79,20 @@ That's the high-level view; now let's dig into the details.
 
 ```{r q1-task}
 ## TASK: Load the census bureau data with the following tibble name.
-df_pop <- NA
+filename <- "./data/ACSDT5Y2018.B01003_2026-10-01T112825/ACSDT5Y2018.B01003-Data.csv"
+
+## Load the data
+df_pop <- 
+  filename %>% 
+  read_csv(skip = 1)
+
+df_pop <-
+  df_pop %>% 
+  select(c(-"...5"))
+names(df_pop)[names(df_pop) == 'Geography'] <- 'id'
+
+df_pop %>% 
+  glimpse()
 ```
 
 *Note*: You can find information on 1-year, 3-year, and 5-year estimates [here](https://www.census.gov/programs-surveys/acs/guidance/estimates.html). The punchline is that 5-year estimates are more reliable but less current.
@@ -95,7 +108,7 @@ The New York Times is publishing up-to-date data on COVID-19 on [GitHub](https:/
 
 ```{r q2-task}
 ## TASK: Find the URL for the NYT covid-19 county-level data
-url_counties <- NA_character_
+url_counties <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
 ```
 
 Once you have the url, the following code will download a local copy of the data, then load the data into R.
@@ -136,7 +149,11 @@ To join these datasets, we'll need to use [FIPS county codes](https://en.wikiped
 
 ```{r q3-task}
 ## TASK: Create a `fips` column by extracting the county code
-df_q3 <- NA
+df_q3 <- 
+  df_pop %>% 
+  mutate(
+    fips = str_sub(id, -5)
+  )
 ```
 
 Use the following test to check your answer.
@@ -156,7 +173,12 @@ print("Very good!")
 
 ```{r q4-task}
 ## TASK: Join df_covid and df_q3 by fips.
-df_q4 <- NA
+df_q4 <- 
+  df_covid %>% 
+  left_join(
+    df_q3,
+    by = join_by(fips)
+  )
 ```
 
 Use the following test to check your answer.
@@ -220,7 +242,11 @@ Now that we've done the hard work of loading and wrangling the data, we can fina
 ```{r q5-task}
 ## TASK: Normalize cases and deaths
 df_normalized <-
-  df_data
+  df_data %>% 
+  mutate(
+    cases_per100k = cases / population * 100000,
+    deaths_per100k = deaths / population * 100000
+  )
 ```
 
 You may use the following test to check your work.
@@ -289,12 +315,18 @@ Compute the mean and standard deviation for `cases_per100k` and `deaths_per100k`
 
 ```{r q6-task}
 ## TASK: Compute mean and sd for cases_per100k and deaths_per100k
+df_normalized %>% 
+  filter(date == "2022-01-15") %>% 
+  summary()
 ```
 
 - Which rows did you pick?
   - (Your response here)
+  - January 15, 2022
 - Why?
   - (Your response here)
+  - I didn't want to get the same county multiple times, so I picked a date
+  - Google said that's when Covid had peak cases
 
 ### __q7__ Find and compare the top 10
 
@@ -303,14 +335,57 @@ Find the top 10 counties in terms of `cases_per100k`, and the top 10 in terms of
 ```{r q7-task}
 ## TASK: Find the top 10 max cases_per100k counties; report populations as well
 
+df_normalized %>% 
+  arrange(desc(cases_per100k)) %>% 
+  distinct(fips, .keep_all = TRUE) %>% 
+  select(date, county, state, cases_per100k, population, everything())
+
 ## TASK: Find the top 10 deaths_per100k counties; report populations as well
+df_normalized %>% 
+  arrange(desc(deaths_per100k)) %>% 
+  distinct(fips, .keep_all = TRUE) %>% 
+  select(date, county, state, deaths_per100k, population, everything())
 ```
 
 **Observations**:
 
 - (Note your observations here!)
+
+Top cases per 100K
+
+| County | State | cases_per100k | Population |
+|--------|-------|---------------|------------|
+| Loving | Texas | 192156.86 | 102 |
+| Chattahoochee | Georgia | 69527.26 | 10767 |
+| Nome Census Area | Alaska | 62921.91 | 9925 |
+| Northwest Arctic Borough | Alaska | 62542.02 | 7734 |
+| Crowley | Colorado | 59449.38 | 5630 |
+| Bethel Census Area | Alaska | 57439.02 | 18040 |
+| Dewey | South Dakota | 54317.36 | 5779 |
+| Dimmit | Texas | 54018.57 | 10663 |
+| Jim Hogg | Texas | 50132.53 | 5282 |
+| Kusilvak Census Area | Alaska | 49817.03 | 8198 |
+
+Top deaths per 100K
+
+| County | State | deaths_per100k | Population |
+|--------|-------|----------------|------------|
+| McMullen | Texas | 1359.5166 | 662 |
+| Galax city | Virginia | 1175.0527 | 6638 |
+| Motley | Texas | 1124.5675 | 1156 |
+| Hancock | Georgia | 1054.4815 | 8535 |
+| Emporia city | Virginia | 1022.1148 | 5381 |
+| Towns | Georgia | 1016.0287 | 11417 |
+| Jerauld | South Dakota | 985.7072 | 2029 |
+| Loving | Texas | 980.3922 | 102 |
+| Robertson | Kentucky | 979.9347 | 2143 |
+| Martinsville city | Virginia | 946.4926 | 13101 |
+
+- These are all smaller counties
+
 - When did these "largest values" occur?
-  - (Your response here)
+  - All the top cases per 100K happened in May 2022, except one in March 2022
+  - All the top deaths per 100K happened in winter to early spring of 2022
 
 ## Self-directed EDA
 <!-- ------------------------- -->
@@ -329,6 +404,76 @@ Find the top 10 counties in terms of `cases_per100k`, and the top 10 in terms of
 
 **DO YOUR OWN ANALYSIS HERE**
 
+```{r}
+df_normalized %>% 
+  ggplot(aes(state,cases_per100k)) +
+  geom_boxplot() +
+  coord_flip()
+
+df_normalized %>% 
+  ggplot(aes(state,deaths_per100k)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+
+```{r}
+df_new <-
+  df_normalized %>% 
+  group_by(date) %>% 
+  summarize(
+    total_cases = sum(cases),
+    total_deaths = sum(deaths)
+  ) %>%
+  mutate(
+    new_cases = total_cases - lag(total_cases),
+    new_deaths = total_deaths - lag(total_deaths)
+  )
+
+df_new %>% 
+  ggplot(aes(date, new_cases)) +
+  geom_line()
+
+df_new %>% 
+  ggplot(aes(date, new_deaths)) +
+  geom_line()
+```
+
+```{r}
+df_new %>% 
+  filter(new_cases > 1250000)
+```
+
+What happened on January 10, 2022?
+
+```{r}
+df_new_per_day <-
+  df_normalized %>% 
+  group_by(county) %>%
+  arrange(date) %>%
+  mutate(new_cases = cases - lag(cases)) %>% 
+  select(date, county, state, cases, new_cases, everything())
+df_new_per_day
+```
+
+```{r}
+df_new_per_day %>% 
+  filter(date == '2022-01-10') %>% 
+  arrange(desc(new_cases))
+
+df_new_per_day %>% 
+  filter(date == '2022-01-09') %>% 
+  arrange(desc(new_cases))
+
+df_new_per_day %>% 
+  filter(date == '2022-01-01') %>% 
+  arrange(desc(new_cases))
+
+```
+
+It looks like there weren't any specific counties with an outlying increase of cases, rather the cases had a peak on that date. Looking at the news, it was because of the Omicron variant which caused the spike visible on the graph starting in December.
+
+
 ### Aside: Some visualization tricks
 <!-- ------------------------- -->
 
@@ -346,7 +491,7 @@ df_normalized %>%
     aes(date, cases_per100k, color = fct_reorder2(county, date, cases_per100k))
   ) +
   geom_line() +
-  scale_y_log10(labels = scales::label_number_si()) +
+  scale_y_log10() +
   scale_color_discrete(name = "County") +
   theme_minimal() +
   labs(
