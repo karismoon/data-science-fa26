@@ -408,11 +408,13 @@ Top deaths per 100K
 df_normalized %>% 
   ggplot(aes(state,cases_per100k)) +
   geom_boxplot() +
+  scale_y_log10() +
   coord_flip()
 
 df_normalized %>% 
   ggplot(aes(state,deaths_per100k)) +
   geom_boxplot() +
+  scale_y_log10() +
   coord_flip()
 ```
 
@@ -422,8 +424,8 @@ df_new <-
   df_normalized %>% 
   group_by(date) %>% 
   summarize(
-    total_cases = sum(cases),
-    total_deaths = sum(deaths)
+    total_cases = sum(cases, na.rm = TRUE),
+    total_deaths = sum(deaths, na.rm = TRUE)
   ) %>%
   mutate(
     new_cases = total_cases - lag(total_cases),
@@ -437,7 +439,22 @@ df_new %>%
 df_new %>% 
   ggplot(aes(date, new_deaths)) +
   geom_line()
+
+df_new %>% 
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = new_cases, color = "Cases")) +
+  geom_line(aes(y = new_deaths, color = "Deaths"))
 ```
+
+```{r}
+df_new %>% 
+  filter(new_deaths < 0)
+
+df_new %>% 
+  filter(date > '2022-03-12',
+         date < '2022-03-15')
+```
+
 
 ```{r}
 df_new %>% 
@@ -448,13 +465,17 @@ What happened on January 10, 2022?
 
 ```{r}
 df_new_per_day <-
-  df_normalized %>% 
-  group_by(county) %>%
+  df_normalized %>%
+  group_by(county, state) %>%
   arrange(date) %>%
-  mutate(new_cases = cases - lag(cases)) %>% 
-  select(date, county, state, cases, new_cases, everything())
-df_new_per_day
+  mutate(new_cases = cases - lag(cases)) %>%
+  ungroup() %>%
+  select(date, state, county, new_cases, everything())
+
+df_new_per_day %>%
+  arrange(desc(new_cases))
 ```
+
 
 ```{r}
 df_new_per_day %>% 
@@ -465,13 +486,104 @@ df_new_per_day %>%
   filter(date == '2022-01-09') %>% 
   arrange(desc(new_cases))
 
-df_new_per_day %>% 
-  filter(date == '2022-01-01') %>% 
-  arrange(desc(new_cases))
-
 ```
 
 It looks like there weren't any specific counties with an outlying increase of cases, rather the cases had a peak on that date. Looking at the news, it was because of the Omicron variant which caused the spike visible on the graph starting in December.
+
+```{r}
+df_max_new_per_county <-
+  df_new_per_day %>% 
+  filter(county != "Unknown") %>% 
+  group_by(county, state) %>% 
+  slice_max(new_cases, n = 1) %>% 
+  mutate(normalized_new_cases = new_cases / population)
+
+df_max_new_per_county %>% 
+  ggplot(aes(date, new_cases)) +
+  geom_point(alpha = 1/10)
+
+df_max_new_per_county %>% 
+  ggplot(aes(date, new_cases)) +
+  scale_y_log10() +
+  geom_point(alpha = 1/10)
+
+df_max_new_per_county %>% 
+  ggplot(aes(date, normalized_new_cases)) +
+  geom_point(alpha = 1/10)
+
+df_max_new_per_county %>% 
+  ggplot(aes(date, normalized_new_cases)) +
+  scale_y_log10() +
+  geom_point(alpha = 1/10)
+```
+
+Looking more into the outliers with huge numbers of new cases at their peak.
+
+```{r}
+df_max_new_per_county %>% 
+  filter(new_cases > 60000)
+```
+
+Harris, Texas had a peak of 75,982 new cases on January 14 and Miami-Dade, Florida had a peak of 110,441 new cases on January 7. TODO: Look into events on these days in these counties
+
+```{r}
+df_max_new_per_state <-
+  df_new_per_day %>% 
+  summarize(
+    .by = c(state, date),
+    total_new_cases = sum(new_cases, rm.na = TRUE),
+    total_population = sum(population, rm.na = TRUE)
+  ) %>%
+  group_by(state) %>%
+  filter(is.na(total_population))
+  # slice_max(total_new_cases, n = 1)
+
+df_max_new_per_state
+# df_max_new_per_state %>%
+#   ggplot(aes(date, total_new_cases, color = state)) +
+#   geom_point()
+# 
+# df_max_new_per_state %>%
+#   ggplot(aes(date, total_new_cases, color = state)) +
+#   scale_y_log10() +
+#   geom_point()
+```
+
+Interested in: states with earlier peaks and states with very high peaks.
+
+```{r}
+df_max_new_per_state %>% 
+  filter(date < '2021-07-01')
+
+df_max_new_per_state %>% 
+  filter(total_new_cases > 100000)
+
+df_max_new_per_state %>% 
+  ungroup() %>% 
+  summarize(average = mean(total_new_cases))
+
+df_max_new_per_state %>% 
+  filter(date > '2022-02-15')
+```
+
+Missouri and New Jersey had very early peaks, at March 8, 2021 and January 4, 2021, respectively. 
+California had a peak of 227,979, Florida had a peak of 193,786, North Carolina had a peak of 121,315, and Texas had a peak of 164,902. California, Florida, and Texas have big populations.
+
+```{r}
+# df_new_per_day %>% 
+#   arrange(desc(new_cases))
+
+df_new_per_day %>%
+  ungroup() %>% 
+  summarize(
+    .by = c(state, date),
+    new_cases = sum(new_cases, na.rm = TRUE)
+  ) %>%
+  arrange(desc(new_cases)) 
+# %>%
+#   ggplot(aes(date, new_cases, color = state)) +
+#   geom_line()
+```
 
 
 ### Aside: Some visualization tricks

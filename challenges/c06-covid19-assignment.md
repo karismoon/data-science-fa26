@@ -716,6 +716,7 @@ Top deaths per 100K
 df_normalized %>% 
   ggplot(aes(state,cases_per100k)) +
   geom_boxplot() +
+  scale_y_log10() +
   coord_flip()
 ```
 
@@ -728,10 +729,13 @@ df_normalized %>%
 df_normalized %>% 
   ggplot(aes(state,deaths_per100k)) +
   geom_boxplot() +
+  scale_y_log10() +
   coord_flip()
 ```
 
-    ## Warning: Removed 86427 rows containing non-finite outside the scale range
+    ## Warning in scale_y_log10(): log-10 transformation introduced infinite values.
+
+    ## Warning: Removed 339184 rows containing non-finite outside the scale range
     ## (`stat_boxplot()`).
 
 ![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->
@@ -741,8 +745,8 @@ df_new <-
   df_normalized %>% 
   group_by(date) %>% 
   summarize(
-    total_cases = sum(cases),
-    total_deaths = sum(deaths)
+    total_cases = sum(cases, na.rm = TRUE),
+    total_deaths = sum(deaths, na.rm = TRUE)
   ) %>%
   mutate(
     new_cases = total_cases - lag(total_cases),
@@ -765,10 +769,46 @@ df_new %>%
   geom_line()
 ```
 
-    ## Warning: Removed 740 rows containing missing values or values outside the scale range
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
     ## (`geom_line()`).
 
 ![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
+
+``` r
+df_new %>% 
+  ggplot(aes(x = date)) +
+  geom_line(aes(y = new_cases, color = "Cases")) +
+  geom_line(aes(y = new_deaths, color = "Deaths"))
+```
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_line()`).
+    ## Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_line()`).
+
+![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->
+
+``` r
+df_new %>% 
+  filter(new_deaths < 0)
+```
+
+    ## # A tibble: 1 × 5
+    ##   date       total_cases total_deaths new_cases new_deaths
+    ##   <date>           <dbl>        <dbl>     <dbl>      <dbl>
+    ## 1 2022-03-14    79462956       963926     49048      -2435
+
+``` r
+df_new %>% 
+  filter(date > '2022-03-12',
+         date < '2022-03-15')
+```
+
+    ## # A tibble: 2 × 5
+    ##   date       total_cases total_deaths new_cases new_deaths
+    ##   <date>           <dbl>        <dbl>     <dbl>      <dbl>
+    ## 1 2022-03-13    79413908       966361      6390        143
+    ## 2 2022-03-14    79462956       963926     49048      -2435
 
 ``` r
 df_new %>% 
@@ -778,36 +818,38 @@ df_new %>%
     ## # A tibble: 1 × 5
     ##   date       total_cases total_deaths new_cases new_deaths
     ##   <date>           <dbl>        <dbl>     <dbl>      <dbl>
-    ## 1 2022-01-10    61600909           NA   1433977         NA
+    ## 1 2022-01-10    61600909       838412   1433977       1684
 
 What happened on January 10, 2022?
 
 ``` r
 df_new_per_day <-
-  df_normalized %>% 
-  group_by(county) %>%
+  df_normalized %>%
+  group_by(county, state) %>%
   arrange(date) %>%
-  mutate(new_cases = cases - lag(cases)) %>% 
-  select(date, county, state, cases, new_cases, everything())
-df_new_per_day
+  mutate(new_cases = cases - lag(cases)) %>%
+  ungroup() %>%
+  select(date, state, county, new_cases, everything())
+
+df_new_per_day %>%
+  arrange(desc(new_cases))
 ```
 
     ## # A tibble: 2,502,832 × 10
-    ## # Groups:   county [1,932]
-    ##    date       county state cases new_cases fips  deaths population cases_per100k
-    ##    <date>     <chr>  <chr> <dbl>     <dbl> <chr>  <dbl>      <dbl>         <dbl>
-    ##  1 2020-01-21 Snoho… Wash…     1        NA 53061      0     786620       0.127  
-    ##  2 2020-01-22 Snoho… Wash…     1         0 53061      0     786620       0.127  
-    ##  3 2020-01-23 Snoho… Wash…     1         0 53061      0     786620       0.127  
-    ##  4 2020-01-24 Cook   Illi…     1        NA 17031      0    5223719       0.0191 
-    ##  5 2020-01-24 Snoho… Wash…     1         0 53061      0     786620       0.127  
-    ##  6 2020-01-25 Orange Cali…     1        NA 06059      0    3164182       0.0316 
-    ##  7 2020-01-25 Cook   Illi…     1         0 17031      0    5223719       0.0191 
-    ##  8 2020-01-25 Snoho… Wash…     1         0 53061      0     786620       0.127  
-    ##  9 2020-01-26 Maric… Ariz…     1        NA 04013      0    4253913       0.0235 
-    ## 10 2020-01-26 Los A… Cali…     1        NA 06037      0   10098052       0.00990
+    ##    date       state   county     new_cases fips    cases deaths population
+    ##    <date>     <chr>   <chr>          <dbl> <chr>   <dbl>  <dbl>      <dbl>
+    ##  1 2022-01-04 Florida Unknown       193786 <NA>   193791    199         NA
+    ##  2 2022-01-10 Florida Unknown       125996 <NA>   196121    306         NA
+    ##  3 2022-01-18 Florida Unknown       111621 <NA>   161275    767         NA
+    ##  4 2022-01-07 Florida Miami-Dade    110441 12086  958187   9278    2715516
+    ##  5 2021-12-31 Florida Miami-Dade     99926 12086  847746   9260    2715516
+    ##  6 2022-01-14 Florida Miami-Dade     93321 12086 1051508   9314    2715516
+    ##  7 2021-12-30 Florida Unknown        77848 <NA>   225789    138         NA
+    ##  8 2022-01-14 Texas   Harris         75982 48201  860238   9875    4602523
+    ##  9 2021-12-27 Florida Unknown        71957 <NA>    71959    169         NA
+    ## 10 2022-01-12 Florida Unknown        71742 <NA>   315572    131         NA
     ## # ℹ 2,502,822 more rows
-    ## # ℹ 1 more variable: deaths_per100k <dbl>
+    ## # ℹ 2 more variables: cases_per100k <dbl>, deaths_per100k <dbl>
 
 ``` r
 df_new_per_day %>% 
@@ -816,19 +858,18 @@ df_new_per_day %>%
 ```
 
     ## # A tibble: 3,251 × 10
-    ## # Groups:   county [1,930]
-    ##    date       county    state          cases new_cases fips  deaths population
-    ##    <date>     <chr>     <chr>          <dbl>     <dbl> <chr>  <dbl>      <dbl>
-    ##  1 2022-01-10 Cook      Illinois      947175    943203 17031  12844    5223719
-    ##  2 2022-01-10 Harris    Texas         752947    748286 48201   9821    4602523
-    ##  3 2022-01-10 Dallas    Texas         481528    478664 48113   5817    2586552
-    ##  4 2022-01-10 Orange    California    422625    417582 06059   5908    3164182
-    ##  5 2022-01-10 Clark     Nevada        416544    415219 32003   6544    2141574
-    ##  6 2022-01-10 Nassau    New York      354032    337356 36059   3482    1356564
-    ##  7 2022-01-10 Wayne     Michigan      319788    315656 26163   6672    1761382
-    ##  8 2022-01-10 King      Washington    248777    248747 53033   2198    2163257
-    ##  9 2022-01-10 Middlesex Massachusetts 254872    232999 25017   4179    1595192
-    ## 10 2022-01-10 Franklin  Ohio          235422    221970 39049   1973    1275333
+    ##    date       state      county         new_cases fips   cases deaths population
+    ##    <date>     <chr>      <chr>              <dbl> <chr>  <dbl>  <dbl>      <dbl>
+    ##  1 2022-01-10 Florida    Unknown           125996 <NA>  1.96e5    306         NA
+    ##  2 2022-01-10 California Los Angeles        43521 06037 2.01e6  27798   10098052
+    ##  3 2022-01-10 New York   New York City      35371 <NA>  1.95e6  35906         NA
+    ##  4 2022-01-10 Illinois   Cook               29796 17031 9.47e5  12844    5223719
+    ##  5 2022-01-10 Oklahoma   Unknown            27058 <NA>  4.79e4      2         NA
+    ##  6 2022-01-10 California Orange             25439 06059 4.23e5   5908    3164182
+    ##  7 2022-01-10 Washington King               18793 53033 2.49e5   2198    2163257
+    ##  8 2022-01-10 California San Bernardino     18533 06071 4.44e5   6180    2135413
+    ##  9 2022-01-10 California Riverside          17822 06065 4.59e5   5631    2383286
+    ## 10 2022-01-10 Nevada     Clark              15448 32003 4.17e5   6544    2141574
     ## # ℹ 3,241 more rows
     ## # ℹ 2 more variables: cases_per100k <dbl>, deaths_per100k <dbl>
 
@@ -839,42 +880,18 @@ df_new_per_day %>%
 ```
 
     ## # A tibble: 3,251 × 10
-    ## # Groups:   county [1,930]
-    ##    date       county       state         cases new_cases fips  deaths population
-    ##    <date>     <chr>        <chr>         <dbl>     <dbl> <chr>  <dbl>      <dbl>
-    ##  1 2022-01-09 Cook         Illinois     917379    913547 17031  12757    5223719
-    ##  2 2022-01-09 Harris       Texas        745996    741657 48201   9821    4602523
-    ##  3 2022-01-09 Dallas       Texas        477343    474483 48113   5817    2586552
-    ##  4 2022-01-09 Clark        Nevada       401096    399771 32003   6529    2141574
-    ##  5 2022-01-09 Orange       California   397186    392143 06059   5906    3164182
-    ##  6 2022-01-09 Nassau       New York     350265    333589 36059   3472    1356564
-    ##  7 2022-01-09 Wayne        Michigan     310944    306812 26163   6661    1761382
-    ##  8 2022-01-09 King         Washington   229984    229955 53033   2199    2163257
-    ##  9 2022-01-09 Middlesex    Massachuset… 241111    220135 25017   4166    1595192
-    ## 10 2022-01-09 Hillsborough Florida      290614    220101 12057   3140    1378883
-    ## # ℹ 3,241 more rows
-    ## # ℹ 2 more variables: cases_per100k <dbl>, deaths_per100k <dbl>
-
-``` r
-df_new_per_day %>% 
-  filter(date == '2022-01-01') %>% 
-  arrange(desc(new_cases))
-```
-
-    ## # A tibble: 3,251 × 10
-    ## # Groups:   county [1,930]
-    ##    date       county       state       cases new_cases fips  deaths population
-    ##    <date>     <chr>        <chr>       <dbl>     <dbl> <chr>  <dbl>      <dbl>
-    ##  1 2022-01-01 Cook         Illinois   821472    817729 17031  12541    5223719
-    ##  2 2022-01-01 Harris       Texas      651970    647811 48201   9740    4602523
-    ##  3 2022-01-01 Dallas       Texas      436400    433700 48113   5765    2586552
-    ##  4 2022-01-01 Clark        Nevada     378138    376859 32003   6461    2141574
-    ##  5 2022-01-01 Orange       California 358569    353871 06059   5890    3164182
-    ##  6 2022-01-01 Nassau       New York   302366    286562 36059   3412    1356564
-    ##  7 2022-01-01 Wayne        Michigan   277722    273730 26163   6484    1761382
-    ##  8 2022-01-01 Hillsborough Florida    268504    203323 12057   3139    1378883
-    ##  9 2022-01-01 King         Washington 200875    200848 53033   2164    2163257
-    ## 10 2022-01-01 Franklin     Ohio       208679    197190 39049   1955    1275333
+    ##    date       state      county        new_cases fips    cases deaths population
+    ##    <date>     <chr>      <chr>             <dbl> <chr>   <dbl>  <dbl>      <dbl>
+    ##  1 2022-01-09 California Los Angeles       45553 06037 1968147  27785   10098052
+    ##  2 2022-01-09 New York   New York City     42641 <NA>  1914011  35883         NA
+    ##  3 2022-01-09 Arizona    Maricopa          10779 04013  937211  13952    4253913
+    ##  4 2022-01-09 Texas      Harris             7575 48201  745996   9821    4602523
+    ##  5 2022-01-09 New York   Suffolk            6796 36103  373459   3922    1487901
+    ##  6 2022-01-09 New York   Nassau             6668 36059  350265   3472    1356564
+    ##  7 2022-01-09 Maryland   Montgomery         4385 24031  130947   1788    1040133
+    ##  8 2022-01-09 Missouri   St. Louis          4133 29189  179257   2790     998684
+    ##  9 2022-01-09 New York   Westchester        3938 36119  215424   2463     968815
+    ## 10 2022-01-09 Texas      Bexar              3863 48029  377656   5381    1925865
     ## # ℹ 3,241 more rows
     ## # ℹ 2 more variables: cases_per100k <dbl>, deaths_per100k <dbl>
 
@@ -882,6 +899,228 @@ It looks like there weren’t any specific counties with an outlying
 increase of cases, rather the cases had a peak on that date. Looking at
 the news, it was because of the Omicron variant which caused the spike
 visible on the graph starting in December.
+
+``` r
+df_max_new_per_county <-
+  df_new_per_day %>% 
+  filter(county != "Unknown") %>% 
+  group_by(county, state) %>% 
+  slice_max(new_cases, n = 1) %>% 
+  mutate(normalized_new_cases = new_cases / population)
+
+df_max_new_per_county %>% 
+  ggplot(aes(date, new_cases)) +
+  geom_point(alpha = 1/10)
+```
+
+![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+df_max_new_per_county %>% 
+  ggplot(aes(date, new_cases)) +
+  scale_y_log10() +
+  geom_point(alpha = 1/10)
+```
+
+    ## Warning in scale_y_log10(): log-10 transformation introduced infinite values.
+
+![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+df_max_new_per_county %>% 
+  ggplot(aes(date, normalized_new_cases)) +
+  geom_point(alpha = 1/10)
+```
+
+    ## Warning: Removed 15 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+``` r
+df_max_new_per_county %>% 
+  ggplot(aes(date, normalized_new_cases)) +
+  scale_y_log10() +
+  geom_point(alpha = 1/10)
+```
+
+    ## Warning in scale_y_log10(): log-10 transformation introduced infinite values.
+
+    ## Warning: Removed 15 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
+
+Looking more into the outliers with huge numbers of new cases at their
+peak.
+
+``` r
+df_max_new_per_county %>% 
+  filter(new_cases > 60000)
+```
+
+    ## # A tibble: 2 × 11
+    ## # Groups:   county, state [2]
+    ##   date       state county new_cases fips   cases deaths population cases_per100k
+    ##   <date>     <chr> <chr>      <dbl> <chr>  <dbl>  <dbl>      <dbl>         <dbl>
+    ## 1 2022-01-14 Texas Harris     75982 48201 860238   9875    4602523        18691.
+    ## 2 2022-01-07 Flor… Miami…    110441 12086 958187   9278    2715516        35286.
+    ## # ℹ 2 more variables: deaths_per100k <dbl>, normalized_new_cases <dbl>
+
+Harris, Texas had a peak of 75,982 new cases on January 14 and
+Miami-Dade, Florida had a peak of 110,441 new cases on January 7. TODO:
+Look into events on these days in these counties
+
+``` r
+df_max_new_per_state <-
+  df_new_per_day %>% 
+  summarize(
+    .by = c(state, date),
+    total_new_cases = sum(new_cases, rm.na = TRUE),
+    total_population = sum(population, rm.na = TRUE)
+  ) %>%
+  group_by(state) %>%
+  filter(is.na(total_population))
+  # slice_max(total_new_cases, n = 1)
+
+df_max_new_per_state
+```
+
+    ## # A tibble: 23,970 × 4
+    ## # Groups:   state [54]
+    ##    state        date       total_new_cases total_population
+    ##    <chr>        <date>               <dbl>            <dbl>
+    ##  1 New York     2020-03-01              NA               NA
+    ##  2 Rhode Island 2020-03-01              NA               NA
+    ##  3 New York     2020-03-02               1               NA
+    ##  4 Rhode Island 2020-03-02               1               NA
+    ##  5 New York     2020-03-03               2               NA
+    ##  6 Rhode Island 2020-03-03               1               NA
+    ##  7 New York     2020-03-04              NA               NA
+    ##  8 Rhode Island 2020-03-04               1               NA
+    ##  9 New York     2020-03-05              NA               NA
+    ## 10 Rhode Island 2020-03-05               1               NA
+    ## # ℹ 23,960 more rows
+
+``` r
+# df_max_new_per_state %>%
+#   ggplot(aes(date, total_new_cases, color = state)) +
+#   geom_point()
+# 
+# df_max_new_per_state %>%
+#   ggplot(aes(date, total_new_cases, color = state)) +
+#   scale_y_log10() +
+#   geom_point()
+```
+
+Interested in: states with earlier peaks and states with very high
+peaks.
+
+``` r
+df_max_new_per_state %>% 
+  filter(date < '2021-07-01')
+```
+
+    ## # A tibble: 13,628 × 4
+    ## # Groups:   state [53]
+    ##    state        date       total_new_cases total_population
+    ##    <chr>        <date>               <dbl>            <dbl>
+    ##  1 New York     2020-03-01              NA               NA
+    ##  2 Rhode Island 2020-03-01              NA               NA
+    ##  3 New York     2020-03-02               1               NA
+    ##  4 Rhode Island 2020-03-02               1               NA
+    ##  5 New York     2020-03-03               2               NA
+    ##  6 Rhode Island 2020-03-03               1               NA
+    ##  7 New York     2020-03-04              NA               NA
+    ##  8 Rhode Island 2020-03-04               1               NA
+    ##  9 New York     2020-03-05              NA               NA
+    ## 10 Rhode Island 2020-03-05               1               NA
+    ## # ℹ 13,618 more rows
+
+``` r
+df_max_new_per_state %>% 
+  filter(total_new_cases > 100000)
+```
+
+    ## # A tibble: 3 × 4
+    ## # Groups:   state [1]
+    ##   state   date       total_new_cases total_population
+    ##   <chr>   <date>               <dbl>            <dbl>
+    ## 1 Florida 2022-01-04          193787               NA
+    ## 2 Florida 2022-01-10          125997               NA
+    ## 3 Florida 2022-01-18          111622               NA
+
+``` r
+df_max_new_per_state %>% 
+  ungroup() %>% 
+  summarize(average = mean(total_new_cases))
+```
+
+    ## # A tibble: 1 × 1
+    ##   average
+    ##     <dbl>
+    ## 1      NA
+
+``` r
+df_max_new_per_state %>% 
+  filter(date > '2022-02-15')
+```
+
+    ## # A tibble: 3,049 × 4
+    ## # Groups:   state [42]
+    ##    state          date       total_new_cases total_population
+    ##    <chr>          <date>               <dbl>            <dbl>
+    ##  1 Alaska         2022-02-16             848               NA
+    ##  2 American Samoa 2022-02-16               1               NA
+    ##  3 Arkansas       2022-02-16            1125               NA
+    ##  4 Connecticut    2022-02-16            1829               NA
+    ##  5 Delaware       2022-02-16             203               NA
+    ##  6 Florida        2022-02-16            6459               NA
+    ##  7 Georgia        2022-02-16            3075               NA
+    ##  8 Guam           2022-02-16             612               NA
+    ##  9 Hawaii         2022-02-16             195               NA
+    ## 10 Illinois       2022-02-16            3403               NA
+    ## # ℹ 3,039 more rows
+
+Missouri and New Jersey had very early peaks, at March 8, 2021 and
+January 4, 2021, respectively. California had a peak of 227,979, Florida
+had a peak of 193,786, North Carolina had a peak of 121,315, and Texas
+had a peak of 164,902. California, Florida, and Texas have big
+populations.
+
+``` r
+# df_new_per_day %>% 
+#   arrange(desc(new_cases))
+
+df_new_per_day %>%
+  ungroup() %>% 
+  summarize(
+    .by = c(state, date),
+    new_cases = sum(new_cases, na.rm = TRUE)
+  ) %>%
+  arrange(desc(new_cases)) 
+```
+
+    ## # A tibble: 44,363 × 3
+    ##    state      date       new_cases
+    ##    <chr>      <date>         <dbl>
+    ##  1 California 2022-01-10    227972
+    ##  2 California 2022-01-17    221235
+    ##  3 California 2022-01-24    215830
+    ##  4 Florida    2022-01-04    193786
+    ##  5 Texas      2022-01-03    164902
+    ##  6 California 2022-01-20    162854
+    ##  7 California 2022-01-13    159736
+    ##  8 California 2022-01-04    141752
+    ##  9 California 2022-01-11    136412
+    ## 10 California 2022-01-21    134562
+    ## # ℹ 44,353 more rows
+
+``` r
+# %>%
+#   ggplot(aes(date, new_cases, color = state)) +
+#   geom_line()
+```
 
 ### Aside: Some visualization tricks
 
