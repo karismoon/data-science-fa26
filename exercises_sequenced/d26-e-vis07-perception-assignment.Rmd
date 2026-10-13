@@ -43,6 +43,8 @@ mpg %>%
 **Observations**:
 
 - What are some issues with this graph?
+- the y-axis is in alphabetical order, provides no help to the viewer
+- forces viewers to use length instead of position along a common scale
 
 ### __q2__ What are some issues with the following graph? *Don't just say* "it's bad"---use concepts from the required reading.
 
@@ -57,6 +59,7 @@ as_tibble(mtcars) %>%
 ```
 
 - What are some issues with this graph?
+- uses area!!
 
 ### __q3__ What are some issues with the following graph? *Don't just say* "it's bad"---use concepts from the required reading.
 
@@ -68,6 +71,7 @@ diamonds %>%
 ```
 
 - What are some issues with this graph?
+- stacked bar charts are always bad
 
 ### __q4__ What are some issues with the following graph? *Don't just say* "it's bad"---use concepts from the required reading.
 
@@ -81,6 +85,7 @@ diamonds %>%
 ```
 
 - What are some issues with this graph?
+- pie charts are always bad!!!!!!
 
 <!-- include-exit-ticket -->
 # Exit Ticket
