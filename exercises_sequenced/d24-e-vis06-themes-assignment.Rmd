@@ -25,7 +25,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r q1-task}
 mpg %>%
   ggplot(aes(displ, hwy, color = class)) +
-  geom_point()
+  geom_point() +
+  theme_void() + 
+  guides(colour = "none")
 ```
 
 
@@ -72,12 +74,25 @@ mpg %>%
   labs(
     x = "Engine Displacement (L)",
     y = "Highway Fuel Economy (mpg)"
-  )
+  ) 
+
+mpg %>%
+  ggplot(aes(displ, hwy, color = class)) +
+  geom_point() +
+  labs(
+    x = "Engine Displacement (L)",
+    y = "Highway Fuel Economy (mpg)"
+  ) +
+  theme_common()
 ```
 
 **Observations**:
 
 - What changed about the graph when you added `theme_common()`?
+- The graph became a square
+- The background of the graph is white
+- The axis titles are larger
+- All the text is larger
 
 Calling `theme_common()`, along with settings `labs()` and making some smart choices about geoms and annotations is often all you need to make a *really high-quality graph*.
 
@@ -90,7 +105,27 @@ mpg %>%
   ggplot(aes(displ, hwy, color = class)) +
   geom_point() +
   theme(
-    axis.text.x = element_text(size = 32)
+    axis.text.x = element_text(size = 32),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(margin = margin(4, 4, 4, 4), size = 16),
+    axis.title.y = element_text(margin = margin(4, 4, 4, 4), size = 16, angle = 90),
+
+    legend.title = element_text(size = 40),
+    legend.text = element_text(size = 6),
+
+    strip.text.x = element_text(size = 12),
+    strip.text.y = element_text(size = 12),
+
+    panel.grid.major = element_line(color = "blue"),
+    panel.grid.minor = element_line(color = "pink"),
+
+    aspect.ratio = 20 / 4,
+
+    plot.margin = unit(c(t = +0, b = +0, r = +0, l = +0), "cm"),
+    plot.title = element_text(size = 18),
+    plot.title.position = "plot",
+    plot.subtitle = element_text(size = 16),
+    plot.caption = element_text(size = 12)
   )
 ```
 
