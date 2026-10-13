@@ -29,7 +29,7 @@ library(tidyverse)
 
 ```{r q1-task}
 ## NOTE: Re-write this code to use the placeholder
-diamonds %>% glimpse()
+diamonds %>% glimpse(.)
 ```
 
 ### __q2__ Fix the lambda expression
@@ -39,10 +39,12 @@ The reading discussed *Using lambda expressions with `%>%`*; use this part of th
 ```{r q2-task}
 ## TASK: Uncomment and run this code; explain
 ##       why it fails and fix it.
-# 2 %>%
-#   . * .
+2 %>%
+  {. * .}
 
 ```
+When the rhs uses '.' more than once, it looks for the second '.' in the previous '.'
+In this case the first usage of '.' has no '.' within it
 
 ### __q3__ Re-write the following code using the placeholder `.` operator to simplify the second filter.
 
@@ -57,11 +59,8 @@ diamonds %>%
   geom_point() +
   geom_point(
     ## TODO: Re-write this section
-    data = diamonds %>%
-      filter(
-        carat <= 0.3,
-        cut == "Fair"
-      ),
+    data = . %>% 
+      filter(cut == "Fair"),
     color = "red"
   )
 ```
