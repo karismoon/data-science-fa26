@@ -41,7 +41,13 @@ diamonds %>%
 **Observations**:
 
 - How are the factor levels ordered?
+Fair
+Good
+Very Good
+Premium
+Ideal
 - What---if any---relation does the order of the factor levels have to trends in the data?
+They're not related, they're in order of which cut is best
 
 ### __q2__ Determine the levels for the `continent` variable in the `gapminder` dataset. Note the *order* of the levels.
 
@@ -49,14 +55,19 @@ diamonds %>%
 ## TASK: Determine the levels of the variable
 ## TODO: Your code here!
 
+gapminder %>%
+  pull(continent) %>%
+  levels()
+
 ## TASK: Determine what order the factors are listed in.
 ```
 
 **Observations**:
 
 - How are the factor levels ordered?
+Based on alphabetical order
 - What---if any---relation does the order of the factor levels have to trends in the data?
-
+None
 
 The [forcats](https://forcats.tidyverse.org/) package has tools for working with
 factors. For instance, we can assign manual factor levels with the function
@@ -68,12 +79,25 @@ factors. For instance, we can assign manual factor levels with the function
 Copy your code from q2 and introduce a mutate using `fct_relevel()` to reorder `continent`. Choose which levels to reorder and what order in which to put them. Note how the resulting order is changed when you call `levels()` at the end of the pipe.
 
 ```{r q3-task}
-
+gapminder %>%
+  mutate(
+    continent = fct_relevel(
+      continent, 
+      "Oceania", 
+      "Europe", 
+      "Asia", 
+      "Americas", 
+      "Africa"
+      )
+  ) %>% 
+  pull(continent) %>%
+  levels()
 ```
 
 **Observations**:
 
 - How are the factor levels (re)ordered?
+How I put them down to be
 
 ## Visual Tricks
 <!-- -------------------------------------------------- -->
@@ -99,7 +123,8 @@ another variable `x`. This will "match" the order between the two.
 ## TASK: Modify the following code to sort the factor `manufacturer` based on
 ## `cty`.
 mpg %>%
-
+  # mutate(manufacturer = fct_reorder(manufacturer, cty)) %>%
+  
   ggplot(aes(manufacturer, cty)) +
   geom_boxplot() +
   coord_flip()
@@ -124,6 +149,7 @@ Use `fct_reorder2()` to sort `country` to match the order of `x = year, y = pop`
 ## and `pop`.
 gapminder %>%
   filter(dense_rank(country) <= 7) %>%
+  mutate(country = fct_reorder2(country, year, pop)) %>%
 
   ggplot(aes(year, pop, color = country)) +
   geom_line() +
