@@ -1,7 +1,7 @@
 ---
 title: "Estimating Pi With a Shotgun"
-author: "(Your name here)"
-date: 2020-
+author: "Karis Moon"
+date: 2026-10-22
 output:
   github_document:
     toc: true
@@ -111,8 +111,11 @@ Pick a sample size $n$ and generate $n$ points *uniform randomly* in the square 
 
 ```{r q1-task}
 ## TASK: Choose a sample size and generate samples
-n <- NA_real_ # Choose a sample size
-df_q1 <- NA # Generate the data
+n <- 8 # Choose a sample size
+df_q1 <- data.frame(
+  x = runif(n, min = 0, max = 1),
+  y = runif(n, min = 0, max = 1)
+) # Generate the data
 ```
 
 Use the following to check that you've used the correct variable names. (NB. This does not check correctness.)
