@@ -82,14 +82,35 @@ Based on your results, can you reject the null hypothesis **H_0** for the popula
 ```{r q1-task}
 ## TASK: Compute a confidence interval on the mean, use to answer the question
 ## above
-df_sample
+C <- 0.95
+q <- qnorm( 1 - (1 - C) / 2 )
+df_q3 <-
+  df_q1 %>%
+  summarize(
+    c_meas_mean = mean(c_meas),
+    c_meas_sd = sd(c_meas),
+    n_samp = n(),
+    c_lo = c_meas_mean - q * c_meas_sd / sqrt(n_samp),
+    c_hi = c_meas_mean + q * c_meas_sd / sqrt(n_samp)
+  )
+
+df_sample %>% 
+  summarize(
+    mean = mean(price),
+    sd = sd(price),
+    n_samp = n(),
+    c_lo = mean - q * sd / sqrt(n_samp),
+    c_hi = mean + q * sd / sqrt(n_samp)
+  )
 price_threshold
 ```
 
 **Observations**:
 
 - Can you reject the null hypothesis **H_0**?
+We cannot reject the null hypothesis. 
 - How does this affect your decision?
+We should not take the contract.
 
 ## Different Scenario, Different Hypotheses
 <!-- -------------------------------------------------- -->
@@ -125,12 +146,47 @@ Use the techniques you learned in `e-stat09-bootstrap` to estimate a 99-percent 
 ```{r q2-task}
 ## TASK: Estimate a confidence interval for the proportion of high-cut diamonds
 ## in the population. Look to `e-stat09-bootstrap` for starter code.
+
+df_demo <- 
+  df_sample %>% 
+  # Create the bootstrap resamplings
+  bootstraps(., times = 1000) %>% 
+  # Finicky code: Compute an estimate for each resampling (`splits` column)
+  mutate(
+    # The `map_*` family of functions iterates a provided function over a column
+    sample_mean = map_dbl(
+      # Chosen column
+      splits,
+      # Function we provide (defined inline)
+      function(split_df) {
+        # First, we use `analysis()` to translate the split into usable data
+        split_df %>% 
+          analysis() %>% 
+          # Then, we carry out whatever analysis we want
+          summarize(sample_mean = mean(cut == "Premium" | cut == "Ideal")) %>% 
+          # One last wrangling step
+          pull(sample_mean)
+      }
+    )
+  )
+
+alpha <- 0.01
+
+df_q3 <- 
+  df_demo %>% 
+  summarize(
+    mean_lo = quantile(sample_mean, alpha / 2),
+    mean_up = quantile(sample_mean, 1 - alpha / 2),
+  )
+df_q3
 ```
 
 **Observations**:
 
 - Can you reject the null hypothesis **H_0**?
+Yes
 - How does this affect your decision?
+Buy the diamonds !
 
 ## Closing Thoughts
 <!-- -------------------------------------------------- -->
@@ -145,14 +201,19 @@ Compute the population mean price for the diamonds. Did you reject the null hypo
 
 ```{r q3-task}
 ## TASK: Compute the population mean of diamond price
-
+population_mean <- 
+  df_population %>% 
+  summarize(mean(price))
+population_mean
 price_threshold
 ```
 
 **Observations**:
 
 - Did you reject the null hypothesis in q1?
+No, could not reject
 - What is the actual truth?
+The mean is less than the threshold
 - What decision did you make?
 
 When I did q1, I **did not reject the null**. Note the weird wording there: **did not reject the null**, rather than "accepted the null". In this hypothesis testing framework we never actually *accept* the null hypothesis, we can only *fail to reject the null*. What this means is that we still maintain the possibility that the null is false, and all we can say for sure is that our data are not sufficient to reject the null hypothesis.
@@ -167,12 +228,20 @@ Compute the proportion of high-cut diamonds in the population. Did you reject th
 
 ```{r q4-task}
 ## TASK: Compute the population proportion of high-cut diamonds
+df_population %>% 
+  summarize(
+    ideal_count = sum(cut == "Ideal" | cut == "Premium"),
+    n = n(),
+    prop_ideal = ideal_count / n
+  )
 ```
 
 **Observations**:
 
 - Did you reject the null hypothesis in q2?
+Yes
 - What is the actual truth?
+The proportion of ideal diamonds > .5
 - What decision did you make?
 
 When I did q2 I **did reject the null hypothesis**. It happens that this was the correct choice; the true proportion of high-cut diamonds is greater than 50-percent.
