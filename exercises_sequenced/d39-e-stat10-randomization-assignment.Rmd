@@ -105,11 +105,11 @@ experimental_design %>%
 *Observations*
 
 - Which experimental condition do you *expect* to have greater yield? The Treatment `T` or Control `C`?
-  - (Your response here)
+  - T
 - Which experimental condition do your results suggest has a higher mean yield? The Treatment `T` or Control `C`?
-  - (Your response here)
+  - C
 - The true difference between the treatment mean and control mean is such that the treatment yield should be `1` unit higher. How does your difference compare with that difference?
-  - (Your response here)
+  - .4
 
 ## Confound - Increased yield due to proximity to the river!
 
@@ -156,7 +156,7 @@ Try defining a different order of the plots to overcome the confound (river).
 
 ```{r q2-task}
 ## TODO: Define your own experimental design
-your_design <- NA_character_
+your_design <- c("T", "C", "T", "C", "T", "C")
 
 ## NOTE: No need to edit; use this to simulate your design
 your_design %>%
@@ -171,11 +171,13 @@ your_design %>%
 *Observations*
 
 - Which experimental condition do your results suggest has a higher mean yield? The Treatment `T` or Control `C`?
-  - (Your response here)
+  - T
 - The true difference between the treatment mean and control mean is such that the treatment yield should be `1` unit higher. How does your difference compare with that difference?
   - (Your response here)
+  - about the same
 - What effects are you seeing? The effect of the Treatment `T` *only*, or the combined effects of the Treatment and the river? How does this affect your estimate of the effect of the treatment?
   - (Your response here)
+  - combined effffffffffffects
 
 ## Randomization to the rescue!
 
@@ -221,8 +223,10 @@ experimental_design %>%
 
 - Which experimental condition do you find has a higher mean yield? The Treatment `T` or Control `C`?
   - (Your response here)
+  - C
 - Since you've randomized the conditions, will the confound (river) have a *consistent* effect on the outcome?
   - (Your response here)
+  - No
 - The true difference between the treatment mean and control mean is one unit. How does your difference compare with that value?
   - (Your response here)
 
