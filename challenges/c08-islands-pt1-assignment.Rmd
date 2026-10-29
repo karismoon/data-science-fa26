@@ -80,7 +80,7 @@ Zach looked at the first 25 homes in Helvig and recorded the `age` and `name` of
 
 ```{r}
 ## NOTE: Do not edit this
-df_sample_seq <- read_csv("./data/helvig-seq.csv")
+df_sample_seq <- read_csv("./data/helvig-new-seq.csv")
 df_sample_seq 
 ```
 
@@ -182,7 +182,7 @@ Gather the names of all people in the homes you listed in the previous exercise.
 
 ```{r}
 ## NOTE: Do not edit
-filename_random <- "./data/helvig-random.csv"
+filename_random <- "./data/helvig-random2.csv"
 ```
 
 Note that this points to the `data/` subdirectory in your `challenges` folder.
@@ -197,7 +197,7 @@ df_sample_random <-
 
 Use the following to check your work.
 
-```{r q3-tests}
+```{r q5-tests}
 ## NOTE: No need to change this
 # Check that the dataset has the correct column names
 assertthat::assert_that(setequal(
@@ -323,6 +323,19 @@ assertthat::assert_that(
 print("Nice!")
 ```
 
+```{r}
+df_sample_random %>% 
+  mutate(last_name = str_extract(name, "\\w+$")) %>% 
+  count(last_name) %>% 
+  mutate(prevalence = n / n()) %>%
+  ggplot(aes(x = reorder(last_name, desc(prevalence)), y = prevalence)) +
+  xlab("last names") +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
 ### __q8__ Construct a bootstrap confidence interval
 
 Choose a prevalent name that you found in q6. Use bootstrap resampling with your helper function to construct a confidence interval for the prevalence of that name. Answer the questions below.
@@ -333,7 +346,7 @@ name: Sato
 
 ```{r}
 # TASK: Complete the code below to compute a bootstrap-based confidence interval
-df_interval_bootstrap <- 
+df_bootstrap <- 
   df_sample_random %>% 
   bootstraps(., times = 1000) %>% 
   mutate(
@@ -343,16 +356,78 @@ df_interval_bootstrap <-
 ## TODO: Finish this code, using the name_prevalence() helper you implemented
 ## HINT: Remember that you need to use analysis() when operating on split_df
         analysis(split_df) %>% 
-        name_prevalence(last = "Sato")
+        name_prevalence(last = "Blomgren")
       }
     )
-  ) %>% 
+  )
+df_bootstrap
+
+df_interval_bootstrap <-
+  df_bootstrap %>% 
   ## NOTE: No need to edit this line; this uses your bootstrap sample to compute
   # a confidence `int`erval using the percentile method
   int_pctl(., estimate)
 
 df_interval_bootstrap 
 ```
+
+```{r}
+df_bootstrap %>%
+  mutate(bootstrap_estimate = map_dbl(estimate, ~ .x$estimate)) %>%
+  ggplot(aes(x = bootstrap_estimate)) +
+  geom_histogram() +
+  geom_vline(
+    xintercept = c(
+      df_interval_bootstrap$.lower,
+      df_interval_bootstrap$.upper
+    ),
+    color = "red",
+    linewidth = 1
+  )
+```
+
+```{r}
+df_bootstrap_seq <- 
+  df_sample_seq %>% 
+  bootstraps(., times = 1000) %>% 
+  mutate(
+    estimate = map(
+      splits,
+      function(split_df) {
+## TODO: Finish this code, using the name_prevalence() helper you implemented
+## HINT: Remember that you need to use analysis() when operating on split_df
+        analysis(split_df) %>% 
+        name_prevalence(last = "Blomgren")
+      }
+    )
+  )
+df_bootstrap_seq
+
+df_interval_bootstrap_seq <-
+  df_bootstrap_seq %>% 
+  ## NOTE: No need to edit this line; this uses your bootstrap sample to compute
+  # a confidence `int`erval using the percentile method
+  int_pctl(., estimate)
+
+df_interval_bootstrap_seq
+
+```
+
+```{r}
+df_bootstrap_seq %>%
+  mutate(bootstrap_estimate = map_dbl(estimate, ~ .x$estimate)) %>%
+  ggplot(aes(x = bootstrap_estimate)) +
+  geom_histogram() +
+  geom_vline(
+    xintercept = c(
+      df_interval_bootstrap_seq$.lower,
+      df_interval_bootstrap_seq$.upper
+    ),
+    color = "red",
+    linewidth = 1
+  )
+```
+
 
 **Observations**:
 
@@ -380,15 +455,25 @@ Challenge 10 will be a team assignment where you plan and execute a statistical 
 
 - (What population are you going to study?)
   - All of the Islanders? Only the residents of Helvig? Participants meeting certain criteria (in which case, you need to list *covariates*)?
+  
+- Maeva
 
 #### Quantity of interest
 
-- (Write your quantity of interest here)
+- Correlation between number of kids and number of friends
 
 #### Covariates
 
 - (Write any relevant covariates here)
 - (There's probably more than one!)
+
+- Age
+- Job/wealth
+- Disease
+- Moving around
+- Club participation
+- Number of siblings
+- Proximity to family
 
 #### Observation or experiment?
 
@@ -396,11 +481,15 @@ The Islands allows you to ask islanders to complete tasks. If you just take meas
 
 - (Observation or experiment?)
 
+- Observational
+
 #### Question / Hypothesis
 
 - (Write your question / hypothesis here)
   - This could be an observational question, like "How are X and Y related in the population?"
   - This could be an experimental question, like "What effect does X have on Y in the population?"
+  
+How are number of children and number of friends related in the population?
 
 #### Sampling plan
 
@@ -411,3 +500,10 @@ The Islands allows you to ask islanders to complete tasks. If you just take meas
 - (For experiments only: How will you ensure any effects you observe are due to the treatment, and not due to other factors?)
 - (How will you choose your sample size?)
   - This should be a mix of how confident you want to be in your results, and what is actually *feasible* for your research team.
+
+Randomly pick 150 houses, we chose to do a sample size of 150 because that is our capacity as a team. Find out how many people are in each house, for each house randomly generate a number out of the number of the people in that house. Then collect the relevant data for that number person. 
+What are we collecting?
+- Number of friends had
+- Number of friends lost
+- Age
+- Number of kids
