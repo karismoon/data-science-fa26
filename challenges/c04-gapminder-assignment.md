@@ -217,7 +217,8 @@ gapminder %>%
   filter(year == year_min) %>% 
   group_by(continent, year) %>% 
   ggplot(aes(gdpPercap, continent)) +
-  geom_boxplot()
+  geom_boxplot() +
+  scale_x_log10()
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q2-task-1.png)<!-- -->
@@ -269,11 +270,27 @@ gapminder %>%
     ## 2 Switzerland   Europe     1952    69.6   4815000    14734.
     ## 3 United States Americas   1952    68.4 157553000    13990.
 
+``` r
+gapminder %>%
+  filter((year == year_min) & (gdpPercap > 10000))
+```
+
+    ## # A tibble: 7 × 6
+    ##   country       continent  year lifeExp       pop gdpPercap
+    ##   <fct>         <fct>     <int>   <dbl>     <int>     <dbl>
+    ## 1 Australia     Oceania    1952    69.1   8691212    10040.
+    ## 2 Canada        Americas   1952    68.8  14785584    11367.
+    ## 3 Kuwait        Asia       1952    55.6    160000   108382.
+    ## 4 New Zealand   Oceania    1952    69.4   1994794    10557.
+    ## 5 Norway        Europe     1952    72.7   3327728    10095.
+    ## 6 Switzerland   Europe     1952    69.6   4815000    14734.
+    ## 7 United States Americas   1952    68.4 157553000    13990.
+
 **Observations**:
 
 - Identify the outlier countries from q2
   - Kuwait
-  - Switzerland
+  - Canada
   - United States
 
 *Hint*: For the next task, it’s helpful to know a ggplot trick we’ll
@@ -312,7 +329,7 @@ gapminder %>%
   geom_boxplot() +
   facet_wrap(year ~ .) + 
   geom_point(
-    data = . %>% filter(country %in% c("Kuwait", "Switzerland", "United States")),
+    data = . %>% filter(country %in% c("Kuwait", "Canada", "United States")),
     mapping = aes(color = country),
     size = 2
   )

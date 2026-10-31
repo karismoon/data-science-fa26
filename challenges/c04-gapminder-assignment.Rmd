@@ -112,7 +112,8 @@ gapminder %>%
   filter(year == year_min) %>% 
   group_by(continent, year) %>% 
   ggplot(aes(gdpPercap, continent)) +
-  geom_boxplot()
+  geom_boxplot() +
+  scale_x_log10()
 
 gapminder %>% 
   filter((year == year_min) & (gdpPercap < 60000)) %>% 
@@ -142,13 +143,16 @@ gapminder %>%
 gapminder %>%
   filter((year == year_min) & (gdpPercap > 12500))
 
+gapminder %>%
+  filter((year == year_min) & (gdpPercap > 10000))
+
 ```
 
 **Observations**:
 
 - Identify the outlier countries from q2
   - Kuwait
-  - Switzerland
+  - Canada
   - United States
 
 *Hint*: For the next task, it's helpful to know a ggplot trick we'll learn in an upcoming exercise: You can use the `data` argument inside any `geom_*` to modify the data that will be plotted *by that geom only*. For instance, you can use this trick to filter a set of points to label:
@@ -180,7 +184,7 @@ gapminder %>%
   geom_boxplot() +
   facet_wrap(year ~ .) + 
   geom_point(
-    data = . %>% filter(country %in% c("Kuwait", "Switzerland", "United States")),
+    data = . %>% filter(country %in% c("Kuwait", "Canada", "United States")),
     mapping = aes(color = country),
     size = 2
   )
