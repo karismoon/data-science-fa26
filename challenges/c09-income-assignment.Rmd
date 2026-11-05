@@ -1,7 +1,7 @@
 ---
 title: "US Income"
-author: "(Your name here)"
-date: 202X-XX-XX
+author: "Karis Moon"
+date: 2026-11-05
 output:
   github_document:
     toc: true
@@ -50,7 +50,7 @@ library(tidyverse)
 
 ```{r q1-task}
 ## TODO: Give the filename for your copy of Table B01003
-filename_pop <- NA_character_
+filename_pop <- "./data/ACSDT5Y2018.B01003_2026-10-01T112825/ACSDT5Y2018.B01003-Data.csv"
 
 ## NOTE: No need to edit
 df_pop <-
@@ -80,7 +80,7 @@ This means that for cases listed as `*****` the US Census Bureau recommends trea
 
 ```{r q2-task}
 ## TODO: Give the filename for your copy of Table S1903
-filename_income <- NA_character_
+filename_income <- "./data/ACSST5Y2018.S1903_2026-11-05T112207/ACSST5Y2018.S1903-Data.csv"
 
 ## NOTE: No need to edit
 df_income <-
@@ -121,6 +121,16 @@ df_q3 <-
   ) %>%
   mutate(across(contains("median"), as.numeric)) %>%
 ## TODO: Pivot the data, rename the columns
+  pivot_longer(
+    cols = starts_with("Estimate") | starts_with("Margin of Error"),
+    names_to = c(".value", "category"),
+    names_pattern = "(Estimate|Margin of Error).*!!FAMILY INCOME BY FAMILY SIZE!!(.*)$"
+  ) %>%
+  rename(
+    geographic_area_name = "Geographic Area Name",
+    income_estimate = "Estimate",
+    income_moe = "Margin of Error"
+  ) %>% 
   glimpse()
 ```
 
@@ -151,8 +161,18 @@ $$\text{MOE} = 1.645 \times \text{SE}.$$
 ### __q4__ Convert the margin of error to standard error. Additionally, compute a 99% confidence interval on income, and normalize the standard error to `income_CV = income_SE / income_estimate`. Provide these columns with the names `income_SE, income_lo, income_hi, income_CV`.
 
 ```{r q4-task}
+C <- 0.99
+q <- qnorm( 1 - (1 - C) / 2 )
 
-df_q4
+df_q4 <-
+  df_q3 %>% 
+  mutate(
+    income_SE = income_moe / 1.645,
+    income_lo = income_estimate - q * income_SE,
+    income_hi = income_estimate + q * income_SE,
+    income_CV = income_SE / income_estimate,
+  ) %>% 
+  glimpse()
 ```
 
 Use the following tests to check your work:
@@ -208,6 +228,12 @@ One last wrangling step: We need to join the two datasets so we can compare popu
 ```{r q5-task}
 ## TODO: Join df_q4 and df_pop by the appropriate column
 
+df_data <-
+  df_q4 %>% 
+  inner_join(
+    df_pop, 
+    by = "Geography"
+  )
 df_data
 ```
 
@@ -246,13 +272,13 @@ df_data %>%
 **Observations**:
 
 - Document your observations here.
-  - (Your response here)
-  - (Your response here)
-  - ...
+  - The largest confidence intervals are all from bigger families, suggesting more variation in bigger families.
+  - 2 person families tend to have lower median incomes.
+  - It is difficult to pick out overall patterns among families across counties.
 - Can you confidently distinguish between household incomes in Suffolk county? Why or why not?
-  - (Your response here)
+  - No, their confidence intervals are all overlapping.
 - Which counties have the widest confidence intervals?
-  - (Your response here)
+  - Nantucket, Dukes, Berkshire
 
 In the next task you'll investigate the relationship between population and uncertainty.
 
@@ -261,14 +287,24 @@ In the next task you'll investigate the relationship between population and unce
 *Hint*: Remember that standard error is a function of *both* variability (e.g. variance) and sample size.
 
 ```{r q7-task}
+df_data %>%
+  ggplot(aes(population_estimate, income_SE)) +
+  geom_point() +
+  scale_y_log10() +
+  scale_x_log10() +
+  labs(
+    x = "Population",
+    y = "Income Standard Error"
+  )
 ```
 
 **Observations**:
 
 - What *overall* trend do you see between `SE` and population? Why might this trend exist?
-  - (Your response here)
+  - Lower population means lower standard error
+  - This trend might exist because higher population usually introduces higher variability, causing higher standard error
 - What does this *overall* trend tell you about the relative ease of studying small vs large counties?
-  - (Your response here)
+  - Studying smaller counties is easier
 
 # Going Further
 <!-- ----------------------------------------------------------------------- -->
@@ -277,13 +313,65 @@ Now it's your turn! You have income data for every county in the United States: 
 
 ### __q8__ Pose your own question about the data. Create a visualization (or table) here, and document your observations.
 
+Does population size affect income differently for different sized families?
+
 ```{r q8-task}
 ## TODO: Pose and answer your own question about the data
+
+df_data %>% 
+  # filter(category == "2-person families") %>% 
+  ggplot(aes(population_estimate, income_estimate)) +
+  geom_point() +
+  scale_x_log10() +
+  labs(
+    x = "Population",
+    y = "Income"
+  ) +
+  geom_smooth() +
+  facet_wrap(~category)
+
 ```
 
 **Observations**:
 
-- Document your observations here
+- All of the different family sizes follow the same trend line. 
+- This is not very interesting so I will investigate a different question. 
+
+How are race and income related?
+```{r}
+df_by_race <-
+  df_income %>%
+  select(
+    Geography,
+    contains("Geographic"),
+    # This will select only the numeric d-person family columns;
+    # it will ignore the annotation columns
+    contains("median") & contains("One race") & !contains("Annotation of")
+  ) %>%
+  mutate(across(contains("median"), as.numeric)) %>%
+## TODO: Pivot the data, rename the columns
+  pivot_longer(
+    cols = starts_with("Estimate") | starts_with("Margin of Error"),
+    names_to = c(".value", "race"),
+    names_pattern = "(Estimate|Margin of Error).*One race--!!(.*)$"
+  ) %>%
+  rename(
+    geographic_area_name = "Geographic Area Name",
+    income_estimate = "Estimate",
+    income_moe = "Margin of Error"
+  ) %>%
+  glimpse()
+
+df_by_race %>% 
+  mutate(race = fct_reorder(race, income_estimate)) %>% 
+  ggplot(aes(race, income_estimate)) +
+  scale_y_log10() +
+  geom_boxplot() +
+  coord_flip()
+```
+- I did not expect Asians to have the highest median income.
+- White households have the smallest range of incomes.
+- I think American Indian and Alaska Native have the largest range, I wonder what the reason for that would be.
 
 Ideas:
 
