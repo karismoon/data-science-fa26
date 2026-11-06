@@ -110,6 +110,22 @@ print("Very good!")
 
 ```{r q2-task}
 df_stang_long
+
+df_stang_long %>%
+  pull(E) %>%
+  unique
+
+df_stang_long %>%
+  pull(nu) %>%
+  unique
+
+df_stang_long %>%
+  pull(angle) %>%
+  unique
+
+df_stang_long %>%
+  pull(alloy) %>%
+  unique
 ```
 
 **Observations**:
@@ -162,8 +178,9 @@ df_stang_long %>%
   - The thickness .081 has the lowest elasticity and the colors are generally all
     at the same level.
 - Is this evidence *conclusive* one way or another?
-  - I don't think so, because although .081 stands out, the other thicknesses are
-    seemingly all at the same area on the Y-axis.
+  - No, because although .081 stands out, the other thicknesses seem to be
+    clustered with elasticity values around 10250 to 10750 and nu 
+    nu values between .320 and .330.
 
 # References
 <!-- -------------------------------------------------- -->

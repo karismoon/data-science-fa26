@@ -264,6 +264,39 @@ df_stang_long
     ## 10 0.032 al_24st     0 10300 0.319
     ## # ℹ 16 more rows
 
+``` r
+df_stang_long %>%
+  pull(E) %>%
+  unique
+```
+
+    ## [1] 10600 10700 10500 10400 10300 10000  9900 10100
+
+``` r
+df_stang_long %>%
+  pull(nu) %>%
+  unique
+```
+
+    ##  [1] 0.321 0.329 0.310 0.323 0.331 0.318 0.322 0.319 0.326 0.330 0.327 0.328
+    ## [13] 0.320 0.315 0.314 0.312 0.316 0.311
+
+``` r
+df_stang_long %>%
+  pull(angle) %>%
+  unique
+```
+
+    ## [1]  0 45 90
+
+``` r
+df_stang_long %>%
+  pull(alloy) %>%
+  unique
+```
+
+    ## [1] "al_24st"
+
 **Observations**:
 
 - Is there “one true value” for the material properties of Aluminum?
@@ -327,8 +360,9 @@ df_stang_long %>%
   - The thickness .081 has the lowest elasticity and the colors are
     generally all at the same level.
 - Is this evidence *conclusive* one way or another?
-  - I don’t think so, because although .081 stands out, the other
-    thicknesses are seemingly all at the same area on the Y-axis.
+  - No, because although .081 stands out, the other thicknesses seem to
+    be clustered with elasticity values around 10250 to 10750 and nu nu
+    values between .320 and .330.
 
 # References
 
