@@ -1,7 +1,7 @@
 ---
 title: "The Islands, Part 2: Study"
-author: "(Your name here)"
-date: 202X-XX-XX
+author: "Arianne, Laurel, Karis"
+date: 2026-11-09
 output:
   github_document:
     toc: true
@@ -88,6 +88,57 @@ The Islands allows you to ask islanders to complete tasks. If you just take meas
 - (For experiments only: How will you ensure any effects you observe are due to the treatment, and not due to other factors?)
 - (How will you choose your sample size?)
   - This should be a mix of how confident you want to be in your results, and what is actually *feasible* for your research team.
+  
+## Data collection
+
+```{r}
+## Select a random sample of houses
+n_houses <- 657 # Total number of houses
+n_sample <- 150  # Desired sample size
+
+set.seed(101)   # Set a seed for reproducibility
+
+df_numbers_random <- 
+  tibble(
+    house = sample(
+        1:n_houses,     # All integers from 1 to n_houses
+        n_sample,       # Size of our sample
+        replace = FALSE # Sample *WITHOUT* replacement
+      )
+  ) %>% 
+  # Arrange for our data collection convenience
+  arrange(house)
+
+# Pull the column so we can list just the house numbers
+df_numbers_random %>% 
+  pull(house)
+```
+
+```{r}
+filename_adult_count = "./data/adult_counts.csv"
+df_adult_counts <- read_csv(filename_adult_count)
+
+set.seed(101)   # Set a seed for reproducibility
+
+seeds <- sample(101, n_sample, replace = TRUE)
+
+df_adult_counts %>% 
+  mutate(
+    seed = seeds,
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    adult_of_interest = {
+      set.seed(seed)
+      sample(1:number_of_adults, 1)
+    }
+  ) %>% 
+  ungroup() %>% 
+  # Arrange for our data collection convenience
+  arrange(house_number) %>% 
+  write.csv("./data/adult_of_interest.csv", row.names = FALSE)
+```
+
 
 ### __q2__ EDA
 
