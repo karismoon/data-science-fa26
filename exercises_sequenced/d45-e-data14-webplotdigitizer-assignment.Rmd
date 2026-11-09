@@ -87,8 +87,17 @@ Congrats! You just *liberated* data from a plot!
 
 ```{r q4-task}
 ## TODO: Load the data you extracted above
-df_price <- NA
-df_production <- NA
+filename_price <- "./data/beef_price.csv"
+filename_production <- "./data/beef_production.csv"
+
+df_price <- read_csv(filename_price, col_names = c("month", "price_percent"))
+df_production <- read_csv(filename_production, col_names = c("month", "production_percent"))
+
+df_price %>% 
+  full_join(
+    df_production,
+    by = join_by(month)
+  )
 ```
 
 **Observations**:
