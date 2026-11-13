@@ -188,14 +188,35 @@ df_antibiotics_long <-
   ) 
 
 df_antibiotics_long %>% 
-  ggplot(aes(antibiotic, MIC, color = bacteria, shape = gram)) +
-  geom_jitter(
-    width = .4,
-    height = 0
+  mutate(bacteria = fct_reorder(bacteria, MIC)) %>% 
+  ggplot(aes(antibiotic, bacteria, fill = MIC)) +
+  geom_tile() +
+  facet_grid(gram ~ ., scales = "free_y", space = "free_y") +
+  scale_fill_viridis_c(
+    trans = "log10",
+    breaks = c(0.01, 0.1, 1, 10, 100, 1000),
+    labels = c("0.01", "0.1", "1", "10", "100", "1000")
   )
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.1-1.png)<!-- -->
+
+``` r
+  # ggplot(aes(antibiotic, MIC)) +
+  # geom_jitter(
+  #   width = .4,
+  #   height = 0
+  # ) +
+  # geom_text_repel(
+  #   aes(label = bacteria),
+  #   color = "black",
+  #   size = 3,
+  #   max.overlaps = Inf
+  # ) +
+  # facet_wrap(~gram) +
+  # scale_y_log10() +
+  # geom_hline(yintercept = 0.1)
+```
 
 #### Visual 2 (All variables)
 
@@ -213,7 +234,15 @@ your other visuals.
 df_antibiotics_long %>% 
   ggplot(aes(antibiotic, MIC, color = gram)) +
   geom_col() +
-  facet_wrap(~bacteria)
+  facet_wrap(~bacteria, ncol = 3) +
+  scale_y_log10() +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1,
+      vjust = 1
+    )
+  ) 
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.2-1.png)<!-- -->
@@ -232,7 +261,12 @@ your other visuals.
 df_antibiotics_long %>% 
   filter(antibiotic == "penicillin") %>% 
   ggplot(aes(gram, MIC)) +
-  geom_boxplot()
+  geom_boxplot() +
+  scale_y_log10() +
+  geom_hline(yintercept = 0.1) +
+  labs(
+    title = "MIC of Penicillin on negative and positive gram bacteria"
+  )
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.3-1.png)<!-- -->
@@ -251,7 +285,16 @@ your other visuals.
 
 df_antibiotics %>% 
   ggplot(aes(streptomycin, neomycin, color = gram)) +
-  geom_point()
+  geom_point() +
+  scale_y_log10() +
+  scale_x_log10() +
+  geom_hline(yintercept = 0.1) +
+  geom_vline(xintercept = 0.1) +
+  labs(
+    title = "Comparing efficacy of neomycin and streptomycin"
+  ) +
+  xlab("Streptomycin MIC") +
+  ylab("Neomycin MIC")
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.4-1.png)<!-- -->
@@ -269,8 +312,14 @@ your other visuals.
 # WRITE YOUR CODE HERE
 
 df_antibiotics_long %>% 
-  ggplot(aes(antibiotic, MIC)) +
-  geom_boxplot()
+  ggplot(aes(antibiotic, MIC, shape = gram)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  geom_hline(yintercept = 0.1) +
+  geom_jitter(
+    width = .4,
+    height = 0
+  )
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.5-1.png)<!-- -->
