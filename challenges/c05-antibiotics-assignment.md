@@ -185,10 +185,10 @@ df_antibiotics_long <-
     names_to = "antibiotic",
     values_to = "MIC",
     cols = c(penicillin, streptomycin, neomycin)
-  ) 
+  ) %>% 
+  mutate(bacteria = fct_reorder(bacteria, MIC))
 
 df_antibiotics_long %>% 
-  mutate(bacteria = fct_reorder(bacteria, MIC)) %>% 
   ggplot(aes(antibiotic, bacteria, fill = MIC)) +
   geom_tile() +
   facet_grid(gram ~ ., scales = "free_y", space = "free_y") +
