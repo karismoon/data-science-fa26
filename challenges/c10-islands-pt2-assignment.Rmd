@@ -16,17 +16,20 @@ This challenge is deliberately shorter so you have time to collect and analyze y
 *Important note*: While we expect that you did your data collection with your team, you need to complete your own individual report for c10.
 
 <!-- include-rubric -->
+
 # Grading Rubric
+
 <!-- -------------------------------------------------- -->
 
 Unlike exercises, **challenges will be graded**. The following rubrics define how you will be graded, both on an individual and team basis.
 
 ## Individual
+
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----------|----------------|--------------|
-| Effort | Some task __q__'s left unattempted | All task __q__'s attempted |
+|------------------|-----------------------------|-------------------------|
+| Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
 | Assessed | Observations include claims not supported by the data, or reflect a level of certainty not warranted by the data | Observations are appropriately qualified by the quality & relevance of the data and (in)conclusiveness of the support |
@@ -34,22 +37,24 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 | Code Styled | Violations of the [style guide](https://style.tidyverse.org/) hinder readability | Code sufficiently close to the [style guide](https://style.tidyverse.org/) |
 
 ## Submission
+
 <!-- ------------------------- -->
 
 Make sure to commit both the challenge report (`report.md` file) and supporting files (`report_files/` folder) when you are done! Then submit a link to Canvas. **Your Challenge submission is not complete without all files uploaded to GitHub.**
 
-
 # Setup
+
 <!-- ----------------------------------------------------------------------- -->
 
 ```{r setup}
 library(tidyverse)
 library(rsample)
+library(broom)
 
 # TODO: Include any other packages you need
 ```
 
-### __q1__ Planning a study (TEAMWORK)
+### **q1** Planning a study (TEAMWORK)
 
 While you provided this plan in c08 (Part 1), please include your plan here. In particular, describe how you updated your plan in response to feedback.
 
@@ -88,8 +93,8 @@ The Islands allows you to ask islanders to complete tasks. If you just take meas
 - (For experiments only: How will you ensure any effects you observe are due to the treatment, and not due to other factors?)
 - (How will you choose your sample size?)
   - This should be a mix of how confident you want to be in your results, and what is actually *feasible* for your research team.
-  
-## Data collection
+
+#### Data collection
 
 ```{r}
 ## Select a random sample of houses
@@ -139,15 +144,227 @@ df_adult_counts %>%
   write.csv("./data/adult_of_interest.csv", row.names = FALSE)
 ```
 
-
-### __q2__ EDA
+### **q2** EDA
 
 Conduct an EDA on your data. Add as many code chunks as you need. Ensure your EDA gives enough context of the data for us to understand what comes next in this report.
 
-### __q3__ Key Analyses
+```{r}
+# Import data
+
+filename_sample <- "./data/maeva_sample.csv"
+
+df_maeva <- 
+  read_csv(
+    filename_sample,
+    col_names = c(
+    "house",
+    "number_of_adults",
+    "adult_of_interest",
+    "name",
+    "age",
+    "total_friends",
+    "friends_lost",
+    "kids"
+    ),
+    skip = 1
+  ) %>% 
+  mutate(current_friends = total_friends - friends_lost) %>%
+  mutate(ratio_friends = current_friends / total_friends) %>%
+  filter(number_of_adults > 0) %>%
+  dplyr::select(house, name, age, total_friends, friends_lost, current_friends, ratio_friends, kids)
+  
+df_maeva
+```
+
+```{r}
+# Basic EDA on number of friends and number of kids
+
+df_maeva %>% 
+  ggplot(aes(age, kids)) +
+  geom_count()
+
+df_maeva %>% 
+  ggplot(aes(kids, current_friends)) +
+  geom_count()
+
+df_maeva %>% 
+  ggplot(aes(age, total_friends)) +
+  geom_point()
+
+df_maeva %>% 
+  ggplot(aes(kids, friends_lost)) +
+  geom_count()
+```
+
+```{r}
+df_maeva %>%
+  ggplot(aes(x = as.factor(kids), y = total_friends)) +
+  geom_boxplot() +
+  labs(
+    title = "Relationship between number of kids and total friends",
+    x = "Number of kids",
+    y = "Total number of Friends"
+  )
+```
+
+```{r}
+
+df_maeva %>%
+  ggplot(aes(kids)) +
+  geom_bar() +
+  labs(
+    title = "Number of Adults Sampled With Same Number of Kids",
+    x = "Number of Kids",
+    y = "Number of Adults"
+  )
+
+```
+
+```{r}
+df_maeva %>% 
+  ggplot(aes(age, total_friends, color = factor(kids))) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Age vs. Total Friends Per Number of Kids Trends"
+  )
+
+df_maeva %>%
+  ggplot(aes(age, total_friends, color = factor(kids))) +
+  geom_line() +
+  labs(
+    title = "Age vs. Total Friends Per Number of Kids"
+  )
+```
+
+```{r}
+df_maeva %>% 
+  ggplot(aes(age, kids)) +
+  geom_boxplot(aes(group = kids)) +
+  geom_count()
+
+df_maeva %>% 
+  ggplot(aes(kids, total_friends)) +
+  geom_boxplot(aes(group = kids)) +
+  geom_count()
+
+df_maeva %>% 
+  ggplot(aes(age, ratio_friends)) +
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+df_maeva %>% 
+  ggplot(aes(kids, ratio_friends)) +
+  geom_point()
+
+df_maeva %>% 
+  ggplot(aes(kids, friends_lost)) +
+  geom_count()
+
+df_maeva %>% 
+  ggplot(aes(ratio_friends)) +
+  geom_histogram(bins = 15)
+```
+
+
+```{r}
+df_maeva %>% 
+  lm(
+    formula = current_friends ~ kids,
+    data = .
+  ) %>% 
+  summary()
+```
+
+
+```{r}
+df_maeva %>%
+  mutate(
+    kids = as_factor(kids) %>% 
+      fct_relevel(., "1")
+  ) %>% 
+  lm(
+    formula = current_friends ~ kids + age,
+    data = .
+  ) %>%
+  summary()
+```
+
+
+No reference group
+
+```{r}
+df_maeva %>% 
+  lm(
+    formula = current_friends ~ as_factor(kids) + 0,
+    data = .
+  ) %>% 
+  summary() %>% 
+  tidy()
+```
+
+
+### **q3** Key Analyses
 
 Present the key analyses that support your questions / hypotheses. This could include summary statistics (e.g., a proportion of Islanders), grouped summary statistics (e.g., a proportion for group A, and for group B), or visualizations (e.g., a histogram). This section should be short, and every analysis should directly relate to q4.
 
-### __q4__ Answers
+```{r}
+df_maeva %>%
+  mutate(
+    kids = as_factor(kids) %>% 
+      fct_relevel(., "1")
+  ) %>% 
+  lm(
+    formula = current_friends ~ kids,
+    data = .
+  ) %>%
+  summary()
+```
+
+Making a linear model using our data with number of kids and age as variables, we saw that people with 1, 2, 3, or 4 kids are all similar - the p-values of the correlations are very high, suggesting that there's no meaningful difference. 
+
+```{r}
+
+df_maeva %>%
+  ggplot(aes(kids)) +
+  geom_bar() +
+  labs(
+    title = "Number of Adults Sampled With Same Number of Kids",
+    x = "Number of Kids",
+    y = "Number of Adults"
+  )
+
+```
+
+We are also unable to make conclusions about adults with 5 or 6 kids because our sample size is too small, with only one adult with 5 kids and three adults with 6 kids in our sample. 
+
+```{r}
+df_maeva %>% 
+  ggplot(aes(age, kids)) +
+  geom_boxplot(aes(group = kids)) +
+  geom_count()
+```
+
+
+Younger adults tend to have fewer kids, so we also controlled for age by adding it as a variable to the linear model. 
+
+```{r}
+df_maeva %>%
+  mutate(
+    kids = as_factor(kids) %>% 
+      fct_relevel(., "1")
+  ) %>% 
+  lm(
+    formula = current_friends ~ kids + age,
+    data = .
+  ) %>%
+  summary()
+```
+
+Even after controlling for age, there is still a high correlation between having no kids and having fewer friends. 
+
+### **q4** Answers
 
 Connect your Key Analyses to your questions / hypotheses. What did you conclude from your study?
+
+Having no kids has a high correlation with having fewer friends, even after controlling for age. 
