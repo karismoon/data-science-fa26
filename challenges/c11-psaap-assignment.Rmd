@@ -1,7 +1,7 @@
 ---
 title: "Regression Case Study: PSAAP II"
-author: "(Your name here)"
-date: 2020-
+author: "Karis Moon"
+date: 2026-11-16
 output:
   github_document:
     toc: true
@@ -72,11 +72,22 @@ Figure 1. An example simulation, frozen at a specific point in time. An initial 
 
 ```{r q1-task}
 ## TODO: Perform your initial checks
+
+# df_psaap %>% 
+#   glimpse()
+
+df_psaap %>% 
+  summary()
+
+# df_psaap
 ```
 
 **Observations**:
 
-- (Take notes here!)
+Looking at the summary of the data, we can look at:
+- the ranges for each variable, how much they vary
+- the typical value (median/mean)
+- any differences in median and mean, showing possibility of an outlier or a unique distribution shape
 
 The important variables in this dataset are:
 
@@ -113,6 +124,10 @@ The primary output of interest is `T_norm = (avg_T - T_f) / T_f`, the normalized
 ## TODO: Visualize the data in df_psaap with T_norm against x;
 ##       design your visual to handle the multiple simulations,
 ##       each identified by different values of idx
+
+df_psaap %>% 
+  ggplot(aes(x, T_norm, color = idx)) +
+  geom_point()
 ```
 
 ## Modeling
@@ -149,18 +164,22 @@ fit_nonphysical <-
 
 ## TODO: Compute a measure of accuracy for each fit above;
 ##       compare their relative performance
+
+mse(fit_baseline, df_validate)
+mse(fit_cheat, df_validate)
+mse(fit_nonphysical, df_validate)
 ```
 
 **Observations**:
 
 - Which model is *most accurate*? Which is *least accurate*?
-  - (Your response here)
+  - fit_cheat is the most accurate, fit_nonphysical is the least accurate
 - What *Category* of variable is `avg_T`? Why is it such an effective predictor?
-  - (Your response here)
+  - avg_T is an output variable. It's effective because it's affected by the same inputs as T_norm, so it'll automatically behave the same way as T_norm does due to correlation, not causation.
 - Would we have access to `avg_T` if we were trying to predict a *new* value of `T_norm`? Is `avg_T` a valid predictor?
-  - (Your response here)
+  - No, T_norm and avg_T require the same input data.
 - What *Category* of variable is `idx`? Does it have any physical meaning?
-  - (Your response here)
+  - idx is metadata, it doesn't have physical meaning in computing any of the outputs.
 
 ### __q4__ Interpret this model
 
@@ -174,22 +193,26 @@ fit_q4 <-
   df_train %>% 
   lm(formula = T_norm ~ . - idx - avg_q - avg_T - rms_T)
 ## TODO: Use some of the functions we learned in e-model01 through e-model03
+fit_q4 %>%
+  tidy()
 ```
 
 **Observations**:
 
 - Which columns are excluded in the model formula above? What categories do these belong to? Why are these important quantities to leave out of the model?
-  - (Your response here)
+  - idx, avg_q, avg_T, and rms_T are excluded because they are metadata and output variables. They aren't inputs that actively affect the output T_norm.
 - Which inputs are *statistically significant*, according to the model?
-  - (Your response here)
+  - They are all significant, they all have very small p-values.
 - What is the regression coefficient for `x`? What about the regression coefficient for `T_f`?
-  - (Your response here)
+  - x: 1.018323e+00	
+  - T_f: -3.791436e-04	
 - What is the standard deviation of `x` in `df_psaap`? What about the standard deviation of `T_f`? 
-  - (Your response here)
+  - x: .75
+  - T_f: 128.6
 - How do these standard deviations relate to the regression coefficients for `x` and `T_f`?
-  - (Your response here)
+  - The regression coefficients are much smaller than the standard deviations
 - Note that literally *all* of the inputs above have *some* effect on the output `T_norm`; so they are all "significant" in that sense. What does this tell us about the limitations of statistical significance for interpreting regression coefficients?
-  - (Your response here)
+  - An input can have a statistically significant effect, but that doesn't mean that it has a significant effect on the output. We need to be careful when interpreting results to make sure that we look at not only the statistical significance of an input, but also its magnitude compared to its standard deviation to see if changes of that magnitude actually matter.
 
 ## Contrasting CI and PI
 
@@ -297,11 +320,11 @@ bind_rows(
 **Observations**:
 
 - Which model tends to be more accurate? How can you tell from this predicted-vs-actual plot?
-  - (Your response here)
+  - The q4 model is more accurate, the plots of actual vs. predicted T_norm are closer to the line representing perfect predictions.
 - Which model tends to be *more confident* in its predictions? Put differently, which model has *narrower prediction intervals*?
-  - (Your response here)
+  - The q4 model has narrower prediction intervals.
 - How many predictors does the `fit_simple` model need in order to make a prediction? What about your model `fit_q4`?
-  - (Your response here)
+  - fit_simple only uses x, while fit_q4 uses all the input values.
 
 Based on these results, you might be tempted to always throw every reasonable variable into the model. For some cases, that might be the best choice. However, some variables might be *outside our control*; for example, variables involving human behavior cannot be fully under our control. Other variables may be *too difficult to measure*; for example, it is *in theory* possible to predict the strength of a component by having detailed knowledge of its microstructure. However, it is *patently infeasible* to do a detailed study of *every single component* that gets used in an airplane.
 
