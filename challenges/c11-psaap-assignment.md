@@ -663,26 +663,75 @@ pr_level <- 0.8
 #        use the validation data to check your uncertainty estimates, and 
 #        make a recommendation on a *dependable range* of values for T_norm
 #        at the point `df_design`
-fit_q6 <- NA
+fit_q6 <- 
+  df_train %>% 
+  lm(formula = T_norm ~ x + L + W + U_0)
+
+fit_q6 %>% 
+  tidy()
 ```
+
+    ## # A tibble: 5 × 5
+    ##   term        estimate std.error statistic  p.value
+    ##   <chr>          <dbl>     <dbl>     <dbl>    <dbl>
+    ## 1 (Intercept)    2.08      0.455      4.58 1.80e- 5
+    ## 2 x              1.02      0.116      8.80 3.57e-13
+    ## 3 L              4.06      1.53       2.66 9.52e- 3
+    ## 4 W            -37.8       6.09      -6.21 2.74e- 8
+    ## 5 U_0           -0.525     0.117     -4.47 2.74e- 5
+
+``` r
+df_intervals_q6 <-
+  df_validate %>% 
+  add_uncertainties(fit_q6, interval = "prediction", prefix = "pi", level = pr_level)
+
+df_intervals_q6 %>% 
+  mutate(predicted = T_norm > pi_lwr & T_norm < pi_upr) %>% 
+  summarize(mean(predicted))
+```
+
+    ## # A tibble: 1 × 1
+    ##   `mean(predicted)`
+    ##               <dbl>
+    ## 1             0.933
+
+``` r
+df_design_interval_q6 <-
+  df_design %>% 
+  add_uncertainties(fit_q6, interval = "prediction", prefix = "pi", level = pr_level)
+
+df_design_interval_q6
+```
+
+    ## # A tibble: 1 × 7
+    ##       x     L     W   U_0 pi_fit pi_lwr pi_upr
+    ##   <dbl> <dbl> <dbl> <dbl>  <dbl>  <dbl>  <dbl>
+    ## 1     1   0.2  0.04     1   1.88   1.46   2.30
 
 **Recommendation**:
 
 - How much do you trust your model? Why?
-  - (Your response here)
+  - 80% confidence level. The p-values show that each of the variables
+    are statistically significant, and the coefficients are large
+    compared to the range of their values.
 - What kind of interval—confidence or prediction—would you use for this
   task, and why?
-  - (Your response here)
+  - Prediction, we are trying to predict what the true value of a new
+    observation which we don’t have any data for, not a mean trend.
 - What fraction of validation cases lie within the intervals you
   predict? (NB. Make sure to calculate your intervals *based on the
   validation data*; don’t just use one single interval!) How does this
   compare with `pr_level`?
-  - (Your response here)
+  - 93.3%, this is better than the pr_level 80%.
 - What interval for `T_norm` would you recommend the design team to plan
   around?
-  - (Your response here)
+  - 1.45685 to 2.296426
 - Are there any other recommendations you would provide?
-  - (Your response here)
+  - Since we don’t have any data at these set inputs, it would be good
+    to do some trials and collect real validation data before using
+    these values in production. We also only used a linear model for
+    fitting, so if the collected data appears to be nonlinear then we
+    could try using different polynomials as models.
 
 *Bonus*: One way you could take this analysis further is to recommend
 which other variables the design team should tightly control. You could
