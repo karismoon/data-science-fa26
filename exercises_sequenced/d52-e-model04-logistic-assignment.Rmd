@@ -159,13 +159,19 @@ The last step of data setup is up to you!
 
 ```{r q1-task}
 n_train <- 200
+set.seed(101)
 
 ## TODO: Perform a test-validate split
 df_train <-
-  df_data
+  df_data %>% 
+  slice_sample(n = n_train)
 
 df_validate <-
-  df_data
+  anti_join(
+    df_data,
+    df_train,
+    by = "rowid"
+  )
 ```
 
 Use the following to check your code.
@@ -288,7 +294,12 @@ df_basic %>%
 
 - Suppose we chose to classify predictions with probability `pr_heart_disease > 0.5` as persons having heart disease, and those below `pr_heart_disease <= 0.5` as not having heart disease. Would this model perform well or poorly?
   - *Hint*: Think about how many persons with `heart_disease` would be correctly identified as having the disease, and how many would truly have `heart_disease` but whom we would not detect.
+  
+It performs poorly, although for women it is mostly accurate, for men there are a lot of men who were predicted to have heart disease and yet did not.
+  
 - The probabilities are all at one of two levels; what about the model structure `heart_disease ~ sex` explains this behavior?
+
+sex only has 2 values, therefore there are only 2 possible values for the probability of heart disease.
 
 In the next modeling exercise we'll discuss how to *quantitatively* assess the results of a classifier. For the moment, know that our objective is usually to maximize the rates of true positives (TP) and true negatives (TN). In our example, true positives are when we correctly identify the presence of heart disease, and true negatives are when we correctly flag the absence of heart disease. Note that we can make errors in "either direction": a false positive (FP) or a false negative (FN), depending on the underlying true class.
 
@@ -320,7 +331,13 @@ These numbers don't mean a whole lot on their own; we'll use them to compare per
 
 ```{r q3-task}
 ## TODO: Fit a logistic regression; choose your own predictor variables
-fit_q3 <- NA
+
+## Fit a basic logistic regression model
+fit_q3 <- glm(
+  formula = heart_disease ~ .,
+  data = df_train,
+  family = "binomial"
+)
 ```
 
 Use the following to check your work.
@@ -342,7 +359,9 @@ print("Nice!")
 ## TODO: Predict with your model fit_q3; convert log_odds_ratio to probabilities
 ##       using inv.logit(), assign this to the column pr_heart_disease
 df_q4 <-
-  df_validate
+  df_validate %>%
+  add_predictions(fit_q3, var = "log_odds_ratio") %>% 
+  mutate(pr_heart_disease = inv.logit(log_odds_ratio))
 
 ## Plot the predicted probabilities and actual classes
 df_q4 %>%
@@ -378,7 +397,7 @@ print("Excellent!")
 
 ```{r q5-task}
 ## TODO: Choose a threshold value
-pr_threshold <- NA_real_
+pr_threshold <- .75
 
 ## NOTE: No need to edit this; just inspect the results
 df_q4 %>%
@@ -399,7 +418,9 @@ df_q4 %>%
 **Observations**:
 
 - How does your classification model compare to `fit_basic` in terms of true positives (TP)?
+Much better!
 - How does your classification model compare to `fit_basic` in terms of true negatives (TN)?
+Much better!
 
 <!-- include-exit-ticket -->
 # Exit Ticket
