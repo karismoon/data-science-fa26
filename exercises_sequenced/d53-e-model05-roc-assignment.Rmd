@@ -256,7 +256,17 @@ pr_threshold <- 0.5
 ## TODO: compute true positive rate (TPR) and false positive rate (FPR) with the
 ##       given pr_threshold. Assign these to the columns TPR and FPR.
 df_q1 <-
-  df_basic
+  df_basic %>% 
+  mutate(prediction = (pr_heart_disease > pr_threshold)) %>% 
+  summarize(
+    TP = sum(heart_disease & prediction),
+    FP = sum(!heart_disease & prediction),
+    TN = sum(!heart_disease & !prediction),
+    FN = sum(heart_disease & !prediction),
+    TPR = TP / (TP + FN),
+    FPR = FP / (FP + TN)
+  ) %>% 
+  select(TPR, FPR)
 
 df_q1
 ```
@@ -266,7 +276,7 @@ Use the following test to check your work.
 ```{r q1-tests}
 ## NOTE: No need to edit; use this to check your work
 assertthat::assert_that(
-  all_equal(
+  all.equal(
     df_q1 %>% select(TPR, FPR),
     df_validate %>%
       add_predictions(fit_basic, var = "l_heart_disease") %>%
@@ -319,6 +329,7 @@ df_basic %>%
 **Observations**:
 
 - Is this an effective or ineffective classifier? How do you know?
+It's ineffective, it stays very close to the diagonal
 
 ## Practice Assessing Classifiers
 <!-- ------------------------- -->
@@ -360,8 +371,10 @@ df_cheating %>%
 
 **Observations**:
 
-- Is this an effective classifier?
+- Is this an effective classifier? Yes, very
 - What explains this model's performance? Is this model valid for prediction?
+
+It's entirely predicting based on the outcomes, num is the diagnosis of heart disease
 
 Next you'll fit your own model and assess its performance.
 
@@ -371,9 +384,18 @@ Next you'll fit your own model and assess its performance.
 ## TODO: Fit your own logistic regression model on df_train, predict class
 ##       probabilities on df_validate.
 ##
-fit_q4 <- NA
+fit_q4 <- glm(
+  formula = heart_disease ~ . - num,
+  data = df_train,
+  family = "binomial"
+)
+
 df_q4 <-
-  df_validate
+  df_validate %>%
+  add_predictions(fit_q4, var = "log_odds_ratio") %>%
+  arrange(log_odds_ratio) %>%
+  rowid_to_column(var = "order") %>%
+  mutate(pr_heart_disease = inv.logit(log_odds_ratio))
 
 ## Here's another model for comparison
 fit_baseline <- glm(
@@ -418,7 +440,10 @@ bind_rows(
 **Observations**:
 
 - Is your model more or less accurate at classifying than `fit_baseline`? How do you know?
+Mine is more accurate, I know because the AUC is greater!
+
 - As you sweep from low to high values of FPR, what happens to the values of TPR? What "tradeoff" do you see in the two quantities?
+Higher FPR means higher TPR. As you increase the number of ture positives, the number of false positives also increases.
 
 ## Selecting a Threshold
 
