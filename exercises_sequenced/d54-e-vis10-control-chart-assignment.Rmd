@@ -66,7 +66,7 @@ Following Step 1, we need to assign batch identifiers to group the data.
 #        consecutive groups of 4 rows have the same id
 df_q1 <-
   df_data %>%
-  mutate(id = row_number())
+  mutate(id = (row_number() - 1) %/% 4)
 df_q1
 ```
 
@@ -103,9 +103,18 @@ Next, we'll use our knowledge about confidence intervals and the CLT to set the 
 ```{r q2-task}
 ## TODO: Edit the code below to create an `id` column where
 #        consecutive groups of 4 rows have the same id
-X_grand <- NA_real_
-X_g4_lo <- NA_real_
-X_g4_up <- NA_real_
+X_grand <- 
+  df_q1 %>% 
+  summarize(mean(X)) %>% 
+  pull()
+X_sd <-
+  df_data %>%
+  summarize(X_sd = sd(X)) %>%
+  pull(X_sd)
+
+X_g4_lo <- X_grand - 3 * X_sd / sqrt(4)
+X_g4_up <- X_grand + 3 * X_sd / sqrt(4)
+
 X_g4_lo
 X_grand
 X_g4_up
@@ -146,11 +155,11 @@ df_q1 %>%
 
 **Observations**:
 - How many points would you *expect* to lie outside the control limits, assume the data were completely random?
-  - (Your response here)
+  - 3 points
 - How many points lie *outside* the control limits? Is this about as many as you would expect if the data were random?
-  - (Your response here)
+  - 1
 - Do you see any coherent patterns in the points? Does this make sense?
-  - (Your response here)
+  - No patterns, this makes sense since the points are completely randomly generated
 
 ## Control Chart: Application
 
@@ -164,7 +173,7 @@ download.file(url, filename)
 df_mass <-
   read_table(
     filename,
-    skip = 25,
+    skip = 49,
     col_names = c(
       "date",
       "standard_id",
@@ -194,11 +203,9 @@ df_mass %>%
 
 **Observations**:
 - These measurement were carried out by some of the most experienced measurement scientists in the world. Are professional measurements *exactly* repeatable?
-  - (Your response here)
+  - Not always, sometimes they are destructive
 - What patterns do you notice?
-  - (Your observation here)
-  - (Your observation here)
-  - ...
+  - The data seem to be scattered randomly, there are some dates that don't have any measures with lower values. 
 
 Next, prepare the data for a control chart of the NIST data.
 
@@ -210,16 +217,22 @@ n_group <- 10
 ## Batched data; edit this code
 df_q4 <-
   df_mass %>%
-  group_by(date) %>%
+  mutate(group_id = (row_number() - 1) %/% n_group) %>% 
+  group_by(group_id) %>%
   summarize(
     Y_mean = mean(Y),
     date = min(date)
   )
+
 ## Control limits and grand mean; complete this code
-Y_mean <- NA_real_
-Y_sd <- NA_real_
-Y_g_lo <- NA_real_
-Y_g_up <- NA_real_
+Y_mean <- df_mass %>%
+  summarize(Y_mean = mean(Y)) %>%
+  pull(Y_mean)
+Y_sd <- df_mass %>%
+  summarize(Y_sd = sd(Y)) %>%
+  pull(Y_sd)
+Y_g_lo <- Y_mean - 3 * Y_sd / sqrt(n_group)
+Y_g_up <- Y_mean + 3 * Y_sd / sqrt(n_group)
 Y_g_lo
 Y_mean
 Y_g_up
