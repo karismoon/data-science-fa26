@@ -154,10 +154,13 @@ you still need to count, because your numbers *will* be different!
   - 99.68%
 - Are there any sources of *real* uncertainty in the percent occupied
   you calculated?
-  - I may have missed a greyed out house while scanning through
+  - Since the villagers don’t all move at the same time throughout the
+    day, villagers might have moved in the middle of my counting, making
+    it an inaccurate snapshot of the house populations at one moment on
+    the Islands.
 - Are there any sources of *erroneous* uncertainty in the percent
   occupied you calculated?
-  - No
+  - I may have missed a greyed out house while scanning through.
 
 Zach looked at the first 25 homes in Helvig and recorded the `age` and
 `name` of every person in those homes. These people are provided in
@@ -420,6 +423,14 @@ print("Great work!")
   homes Helvig? Why?
   - Random
   - We accounted for confounding variables by randomizing the sample.
+    There might be some pattern to where people with certain last names
+    live - for example, people with the same last name might live closer
+    to each other if villagers tend to live close to their family
+    members. However, by randomizing our sample we can break any such
+    patterns even without knowing about them, unlike in the sequential
+    sample we would be falling for this trap by choosing villagers who
+    may have intentionally chosen to live near each other. This means
+    that it’s more likely to be representative.
 
 ### **q6** Find common names: Random sample
 
@@ -585,7 +596,7 @@ df_bootstrap <-
 ## TODO: Finish this code, using the name_prevalence() helper you implemented
 ## HINT: Remember that you need to use analysis() when operating on split_df
         analysis(split_df) %>% 
-        name_prevalence(last = "Blomgren")
+        name_prevalence(last = "Sato")
       }
     )
   )
@@ -621,7 +632,7 @@ df_interval_bootstrap
     ## # A tibble: 1 × 6
     ##   term       .lower .estimate .upper .alpha .method   
     ##   <chr>       <dbl>     <dbl>  <dbl>  <dbl> <chr>     
-    ## 1 prevalence 0.0154    0.0604  0.123   0.05 percentile
+    ## 1 prevalence 0.0462     0.124    0.2   0.05 percentile
 
 ``` r
 df_bootstrap %>%
@@ -641,74 +652,6 @@ df_bootstrap %>%
     ## `stat_bin()` using `bins = 30`. Pick better value `binwidth`.
 
 ![](c08-islands-pt1-assignment_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
-
-``` r
-df_bootstrap_seq <- 
-  df_sample_seq %>% 
-  bootstraps(., times = 1000) %>% 
-  mutate(
-    estimate = map(
-      splits,
-      function(split_df) {
-## TODO: Finish this code, using the name_prevalence() helper you implemented
-## HINT: Remember that you need to use analysis() when operating on split_df
-        analysis(split_df) %>% 
-        name_prevalence(last = "Blomgren")
-      }
-    )
-  )
-df_bootstrap_seq
-```
-
-    ## # Bootstrap sampling 
-    ## # A tibble: 1,000 × 3
-    ##    splits          id            estimate        
-    ##    <list>          <chr>         <list>          
-    ##  1 <split [76/36]> Bootstrap0001 <tibble [1 × 2]>
-    ##  2 <split [76/32]> Bootstrap0002 <tibble [1 × 2]>
-    ##  3 <split [76/31]> Bootstrap0003 <tibble [1 × 2]>
-    ##  4 <split [76/27]> Bootstrap0004 <tibble [1 × 2]>
-    ##  5 <split [76/30]> Bootstrap0005 <tibble [1 × 2]>
-    ##  6 <split [76/27]> Bootstrap0006 <tibble [1 × 2]>
-    ##  7 <split [76/29]> Bootstrap0007 <tibble [1 × 2]>
-    ##  8 <split [76/29]> Bootstrap0008 <tibble [1 × 2]>
-    ##  9 <split [76/30]> Bootstrap0009 <tibble [1 × 2]>
-    ## 10 <split [76/24]> Bootstrap0010 <tibble [1 × 2]>
-    ## # ℹ 990 more rows
-
-``` r
-df_interval_bootstrap_seq <-
-  df_bootstrap_seq %>% 
-  ## NOTE: No need to edit this line; this uses your bootstrap sample to compute
-  # a confidence `int`erval using the percentile method
-  int_pctl(., estimate)
-
-df_interval_bootstrap_seq
-```
-
-    ## # A tibble: 1 × 6
-    ##   term       .lower .estimate .upper .alpha .method   
-    ##   <chr>       <dbl>     <dbl>  <dbl>  <dbl> <chr>     
-    ## 1 prevalence      0    0.0263 0.0658   0.05 percentile
-
-``` r
-df_bootstrap_seq %>%
-  mutate(bootstrap_estimate = map_dbl(estimate, ~ .x$estimate)) %>%
-  ggplot(aes(x = bootstrap_estimate)) +
-  geom_histogram() +
-  geom_vline(
-    xintercept = c(
-      df_interval_bootstrap_seq$.lower,
-      df_interval_bootstrap_seq$.upper
-    ),
-    color = "red",
-    linewidth = 1
-  )
-```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value `binwidth`.
-
-![](c08-islands-pt1-assignment_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 **Observations**:
 

@@ -72,9 +72,9 @@ NB. When Zach counted the homes (on 2025-01-08), he found 20 unoccupied out of 5
 - What percent of homes are *occupied*?
   - 99.68%
 - Are there any sources of *real* uncertainty in the percent occupied you calculated?
-  - I may have missed a greyed out house while scanning through
+  - Since the villagers don't all move at the same time throughout the day, villagers might have moved in the middle of my counting, making it an inaccurate snapshot of the house populations at one moment on the Islands. 
 - Are there any sources of *erroneous* uncertainty in the percent occupied you calculated?
-  - No
+  - I may have missed a greyed out house while scanning through.
 
 Zach looked at the first 25 homes in Helvig and recorded the `age` and `name` of every person in those homes. These people are provided in `helvig-seq.csv`.
 
@@ -237,7 +237,7 @@ print("Great work!")
 
 - Which sample---sequential or random---is more *representative* of all homes Helvig? Why?
   - Random
-  - We accounted for confounding variables by randomizing the sample.
+  - We accounted for confounding variables by randomizing the sample. There might be some pattern to where people with certain last names live - for example, people with the same last name might live closer to each other if villagers tend to live close to their family members. However, by randomizing our sample we can break any such patterns even without knowing about them, unlike in the sequential sample we would be falling for this trap by choosing villagers who may have intentionally chosen to live near each other. This means that it's more likely to be representative.
 
 ### __q6__ Find common names: Random sample
 
@@ -356,7 +356,7 @@ df_bootstrap <-
 ## TODO: Finish this code, using the name_prevalence() helper you implemented
 ## HINT: Remember that you need to use analysis() when operating on split_df
         analysis(split_df) %>% 
-        name_prevalence(last = "Blomgren")
+        name_prevalence(last = "Sato")
       }
     )
   )
@@ -385,49 +385,6 @@ df_bootstrap %>%
     linewidth = 1
   )
 ```
-
-```{r}
-df_bootstrap_seq <- 
-  df_sample_seq %>% 
-  bootstraps(., times = 1000) %>% 
-  mutate(
-    estimate = map(
-      splits,
-      function(split_df) {
-## TODO: Finish this code, using the name_prevalence() helper you implemented
-## HINT: Remember that you need to use analysis() when operating on split_df
-        analysis(split_df) %>% 
-        name_prevalence(last = "Blomgren")
-      }
-    )
-  )
-df_bootstrap_seq
-
-df_interval_bootstrap_seq <-
-  df_bootstrap_seq %>% 
-  ## NOTE: No need to edit this line; this uses your bootstrap sample to compute
-  # a confidence `int`erval using the percentile method
-  int_pctl(., estimate)
-
-df_interval_bootstrap_seq
-
-```
-
-```{r}
-df_bootstrap_seq %>%
-  mutate(bootstrap_estimate = map_dbl(estimate, ~ .x$estimate)) %>%
-  ggplot(aes(x = bootstrap_estimate)) +
-  geom_histogram() +
-  geom_vline(
-    xintercept = c(
-      df_interval_bootstrap_seq$.lower,
-      df_interval_bootstrap_seq$.upper
-    ),
-    color = "red",
-    linewidth = 1
-  )
-```
-
 
 **Observations**:
 
